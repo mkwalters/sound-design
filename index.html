@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stompbox School</title>
+<meta name="description" content="A hands-on, 15-minute lesson on guitar effects: drive, compression, wah, tremolo, chorus, flanger, phaser, delay and reverb.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Fraunces:opsz,wght,SOFT@9..144,500..800,50..100&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="progress" aria-hidden="true"><div class="progress-fill" id="progress"></div></div>
+
+<nav class="rail" id="rail" aria-label="Chapters"></nav>
+
+<header class="hero" id="top">
+  <div class="hero-inner">
+    <p class="kicker">A 15‑minute, hands‑on lesson</p>
+    <h1>Stompbox <em>School</em></h1>
+    <p class="lede">What does a phaser actually <em>do</em>? Why does a fuzz pedal sound fuzzy? Over the next few minutes you'll play with every major guitar effect: turn the knobs, stomp the switches, and watch what happens to the sound.</p>
+    <div class="mini-board" id="mini-board" aria-label="Jump to a pedal"></div>
+    <div class="hero-actions">
+      <a class="big-btn" href="#sound">Start the lesson ↓</a>
+      <span class="hero-note"><span class="hp-icon" aria-hidden="true">🎧</span> Headphones make it much better.</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ 1. SOUND ============ -->
+<section class="chapter" id="sound" data-title="Sound, briefly" data-time="1.5" style="--accent:#d1495b">
+  <div class="chapter-head">
+    <span class="chapter-num">01</span>
+    <div>
+      <p class="family">Warm‑up</p>
+      <h2>Sound in ninety seconds</h2>
+      <p class="hook">Three ideas you need before any of the pedals make sense.</p>
+    </div>
+  </div>
+  <div class="prose">
+    <p>Sound is air pressure wiggling back and forth. Your guitar's pickup turns the vibrating string into an electrical signal that wiggles the same way. If you draw that wiggle over time, you get a <strong>waveform</strong>. Three things about it matter for everything that follows:</p>
+    <ul class="trio">
+      <li><b>Height is loudness.</b> A bigger wiggle is a louder sound. This is the <em>amplitude</em>.</li>
+      <li><b>Speed is pitch.</b> More wiggles per second means a higher note. This is the <em>frequency</em>, measured in hertz (Hz). Your low E string vibrates about 82 times a second.</li>
+      <li><b>Shape is tone.</b> A smooth wave sounds pure. A jagged one sounds buzzy because it secretly contains extra, higher frequencies called <em>harmonics</em>.</li>
+    </ul>
+    <p>Press play and turn the knobs to hear each idea:</p>
+  </div>
+  <div class="bench" id="bench-sound"></div>
+
+  <div class="prose">
+    <h3>Every pedal has one of five jobs</h3>
+    <p>The world of effects looks huge, but every pedal changes one of these five things about the signal. Learn the five and you can make sense of any pedal you run into.</p>
+  </div>
+  <div class="families">
+    <a class="fam" href="#drive" style="--c:#ee7b30"><b>Shape</b><span>Bend the waveform itself</span><i>Overdrive · Distortion · Fuzz</i></a>
+    <a class="fam" href="#comp" style="--c:#2e86ab"><b>Dynamics</b><span>Control loud vs. quiet</span><i>Compressor</i></a>
+    <a class="fam" href="#filter" style="--c:#8e5fc0"><b>Frequency</b><span>Boost or cut lows and highs</span><i>EQ · Wah</i></a>
+    <a class="fam" href="#trem" style="--c:#e2a72e"><b>Modulation</b><span>Make something move</span><i>Tremolo · Chorus · Flanger · Phaser</i></a>
+    <a class="fam" href="#delay" style="--c:#4c9a5a"><b>Time</b><span>Add copies from the past</span><i>Delay · Reverb</i></a>
+  </div>
+  <div class="prose">
+    <p>Pedals sit between your guitar and your amplifier, connected by short cables, in a line called the <strong>signal chain</strong>:</p>
+  </div>
+  <figure class="chain-figure">
+    <svg viewBox="0 0 720 120" role="img" aria-label="Guitar, then a row of pedals, then an amplifier">
+      <path d="M95 62 C 140 62, 140 62, 170 62 M 250 62 L 290 62 M 370 62 L 410 62 M 490 62 L 530 62 M 610 62 C 630 62, 625 62, 640 62" class="cable"/>
+      <g class="chain-guitar">
+        <path d="M18 62 c 0 -26 34 -30 44 -18 c 8 -10 22 -6 22 8 c 0 6 -4 10 -4 10 c 0 0 4 4 4 10 c 0 14 -14 18 -22 8 c -10 12 -44 8 -44 -18z" fill="#d9a45b" stroke="#2b2320" stroke-width="3"/>
+        <circle cx="52" cy="62" r="7" fill="#2b2320"/>
+        <rect x="84" y="57" width="14" height="10" rx="2" fill="#2b2320"/>
+        <text x="52" y="112" text-anchor="middle">guitar</text>
+      </g>
+      <g><rect x="170" y="30" width="80" height="64" rx="10" fill="#ee7b30" stroke="#2b2320" stroke-width="3"/><circle cx="210" cy="74" r="8" fill="#ddd" stroke="#2b2320" stroke-width="2"/><circle cx="192" cy="46" r="6" fill="#fdf6e6" stroke="#2b2320" stroke-width="2"/><circle cx="228" cy="46" r="6" fill="#fdf6e6" stroke="#2b2320" stroke-width="2"/></g>
+      <g><rect x="290" y="30" width="80" height="64" rx="10" fill="#2bb3a3" stroke="#2b2320" stroke-width="3"/><circle cx="330" cy="74" r="8" fill="#ddd" stroke="#2b2320" stroke-width="2"/><circle cx="312" cy="46" r="6" fill="#fdf6e6" stroke="#2b2320" stroke-width="2"/><circle cx="348" cy="46" r="6" fill="#fdf6e6" stroke="#2b2320" stroke-width="2"/></g>
+      <g><rect x="410" y="30" width="80" height="64" rx="10" fill="#4c9a5a" stroke="#2b2320" stroke-width="3"/><circle cx="450" cy="74" r="8" fill="#ddd" stroke="#2b2320" stroke-width="2"/><circle cx="432" cy="46" r="6" fill="#fdf6e6" stroke="#2b2320" stroke-width="2"/><circle cx="468" cy="46" r="6" fill="#fdf6e6" stroke="#2b2320" stroke-width="2"/></g>
+      <g><rect x="530" y="30" width="80" height="64" rx="10" fill="#4a5bd4" stroke="#2b2320" stroke-width="3"/><circle cx="570" cy="74" r="8" fill="#ddd" stroke="#2b2320" stroke-width="2"/><circle cx="552" cy="46" r="6" fill="#fdf6e6" stroke="#2b2320" stroke-width="2"/><circle cx="588" cy="46" r="6" fill="#fdf6e6" stroke="#2b2320" stroke-width="2"/></g>
+      <text x="390" y="18" text-anchor="middle" class="chain-label">pedals, one after another →</text>
+      <g><rect x="640" y="22" width="70" height="80" rx="8" fill="#3a302b" stroke="#2b2320" stroke-width="3"/><rect x="648" y="40" width="54" height="54" rx="4" fill="#c9b48a"/><circle cx="675" cy="67" r="18" fill="#3a302b" opacity=".25"/><circle cx="655" cy="31" r="3" fill="#e8d9b5"/><circle cx="667" cy="31" r="3" fill="#e8d9b5"/><circle cx="679" cy="31" r="3" fill="#e8d9b5"/><text x="675" y="116" text-anchor="middle">amp</text></g>
+    </svg>
+  </figure>
+  <div class="prose"><p>Each pedal takes the sound coming in, changes it, and passes it along. Let's open them up one at a time.</p></div>
+</section>
+
+<!-- ============ 2. DRIVE ============ -->
+<section class="chapter" id="drive" data-title="Overdrive & Fuzz" data-time="2" style="--accent:#ee7b30">
+  <div class="chapter-head">
+    <span class="chapter-num">02</span>
+    <div>
+      <p class="family">Shape</p>
+      <h2>Overdrive, distortion &amp; fuzz</h2>
+      <p class="hook">The sound of rock and roll is a waveform with its top cut off.</p>
+    </div>
+  </div>
+  <div class="prose">
+    <p>Turn an amplifier up past what it can handle and it runs out of room. The peaks of the wave hit a ceiling and get flattened. Engineers call this <strong>clipping</strong>, and in the 1950s it counted as a fault. Then guitarists heard it and loved it. Overdrive, distortion and fuzz pedals all clip on purpose: they boost the signal hard and squash it against a ceiling.</p>
+    <p>The <strong>transfer curve</strong> below sums up a drive pedal in one picture. Input level runs along the bottom and output level runs up the side. A straight diagonal means the sound passes through untouched. The more the ends bend over, the more the loud parts get squashed.</p>
+  </div>
+  <div class="bench" id="bench-drive"></div>
+  <div class="prose">
+    <h3>Three flavors of the same idea</h3>
+    <dl class="flavors">
+      <dt>Overdrive</dt><dd>Gentle, rounded clipping, like a tube amp pushed hard. It responds to how you play: pick softly and it almost cleans up, dig in and it growls. Blues players love it.</dd>
+      <dt>Distortion</dt><dd>Harder clipping with much more gain. It's tighter and sustains longer. Think 80s metal and grunge.</dd>
+      <dt>Fuzz</dt><dd>Clips so hard that the wave turns almost square, often lopsided. It's buzzy, sputtery and wild, the sound of the 60s (“Satisfaction”, Hendrix).</dd>
+    </dl>
+    <p>Look at the <strong>harmonics</strong> graph. Squaring off a wave adds new frequencies at 2×, 3×, 4×… the note you played. That added energy is the “grit”. Symmetrical clipping mostly adds the odd harmonics (3×, 5×), and lopsided fuzz adds the even ones too.</p>
+  </div>
+  <aside class="try">
+    <h4>Try this</h4>
+    <ul>
+      <li>Start with <b>Drive</b> all the way down on <i>Strummed chords</i>, then sweep it up slowly. Watch the curve bend.</li>
+      <li>Switch to <i>Palm‑muted riff</i> and <b>Fuzz</b>. Instant garage band.</li>
+      <li>Play the chords with heavy distortion. They turn to mush, because every note's harmonics clash. That's why rock players love two‑note <em>power chords</em>.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ============ 3. COMPRESSOR ============ -->
+<section class="chapter" id="comp" data-title="Compressor" data-time="1.5" style="--accent:#2e86ab">
+  <div class="chapter-head">
+    <span class="chapter-num">03</span>
+    <div>
+      <p class="family">Dynamics</p>
+      <h2>The compressor</h2>
+      <p class="hook">An automatic volume knob with very fast hands.</p>
+    </div>
+  </div>
+  <div class="prose">
+    <p>A compressor listens to how loud you're playing. When the signal rises above a <strong>threshold</strong>, it turns the volume down, by an amount set by the <strong>ratio</strong>. Afterwards the whole signal gets turned back up. The result: loud notes get tamed, quiet notes come up, and everything sounds more even, punchy and sustained.</p>
+    <ul class="knob-list">
+      <li><b>Threshold</b>: how loud the signal has to get before the compressor starts working.</li>
+      <li><b>Ratio</b>: how hard it pushes back. At 4:1, a note that goes 8 dB over the threshold comes out only 2 dB over. At 20:1 it's basically a brick wall, which is called a <em>limiter</em>.</li>
+      <li><b>Attack</b>: how fast it clamps down. A slow attack lets the pick's initial “snap” slip through before the squeeze, which makes the sound punchier.</li>
+      <li><b>Release</b>: how fast it lets go afterwards.</li>
+    </ul>
+    <p>Watch the dot ride along the curve as you play, and watch the meter on the pedal show how many decibels it's taking away.</p>
+  </div>
+  <div class="bench" id="bench-comp"></div>
+  <aside class="try">
+    <h4>Try this</h4>
+    <ul>
+      <li>Pick the <i>Drum loop</i>, which has quiet “ghost” snare hits. Set threshold around −40 dB and ratio 10:1. The ghost notes jump out, and in the <b>Level over time</b> graph the spiky grey line becomes a flat colored one.</li>
+      <li>On <i>Single note</i>, stomp the compressor on and off. With it on, the note seems to ring longer, because the compressor keeps turning up the fading tail.</li>
+      <li>Crank the attack to 100 ms+ and notice the pick attack poke through. Country “chicken pickin'” and funk players live here.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ============ 4. FILTER / WAH ============ -->
+<section class="chapter" id="filter" data-title="Filters & Wah" data-time="1.5" style="--accent:#8e5fc0">
+  <div class="chapter-head">
+    <span class="chapter-num">04</span>
+    <div>
+      <p class="family">Frequency</p>
+      <h2>Filters, EQ &amp; the wah</h2>
+      <p class="hook">Why a wah pedal sounds like it's talking.</p>
+    </div>
+  </div>
+  <div class="prose">
+    <p>Remember harmonics? Every guitar note is really a stack of frequencies, from boomy lows to fizzy highs. A <strong>filter</strong> lets some of those through and turns others down. The tone knob on your guitar is a filter: a <em>low‑pass</em> that rolls off the highs. An EQ pedal is several filters working together.</p>
+    <p>A <strong>wah</strong> is a single filter with a sharp, resonant peak that you sweep up and down with your foot. Your mouth does the same thing when you say “oooo‑aaaah”: your throat and lips move a resonance from low to high. That's why a wah sounds like a voice.</p>
+    <p>In the graph, the line is the filter's <strong>frequency response</strong>: lows on the left, highs on the right, spaced like a piano keyboard. Above the middle line gets boosted and below gets cut. The glow behind it is the live sound.</p>
+  </div>
+  <div class="bench" id="bench-filter"></div>
+  <aside class="try">
+    <h4>Try this</h4>
+    <ul>
+      <li>Drag the <b>treadle</b> up and down in time with the chords. You're doing a funk wah.</li>
+      <li>Set <b>Auto</b> to <i>Envelope</i> and play the <i>Lead lick</i>. Now the filter follows how hard each note is picked: an <em>auto‑wah</em> or <em>envelope filter</em>, a staple of 70s funk.</li>
+      <li>Switch to <b>Low‑pass</b> and pull the treadle all the way back. That's what your guitar's tone knob does. Turn up the resonance for a synth‑y squelch.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ============ 5. TREMOLO / VIBRATO ============ -->
+<section class="chapter" id="trem" data-title="Tremolo & Vibrato" data-time="1" style="--accent:#e2a72e">
+  <div class="chapter-head">
+    <span class="chapter-num">05</span>
+    <div>
+      <p class="family">Modulation</p>
+      <h2>Tremolo &amp; vibrato: meet the LFO</h2>
+      <p class="hook">A robot hand that turns a knob back and forth, forever.</p>
+    </div>
+  </div>
+  <div class="prose">
+    <p>The next four pedals all rely on movement, and that movement comes from an <strong>LFO</strong> (low‑frequency oscillator). It's a wave that's too slow to hear, anywhere from once every ten seconds to about 15 times a second. Instead of making sound itself, it turns a knob for you, back and forth.</p>
+    <p>Point the LFO at the <strong>volume</strong> and you get <strong>tremolo</strong>, the throbbing pulse of surf rock and swampy blues. Point it at the <strong>pitch</strong> and you get <strong>vibrato</strong>, a singer‑like waver. The graph shows the difference: tremolo makes the wave swell and shrink, vibrato squeezes and stretches it.</p>
+    <p class="aside-note">Fun fact: Leo Fender mixed these two words up for decades. The “tremolo arm” on a Strat bends pitch (vibrato!), and his amps' “vibrato” channel actually did tremolo. Guitarists still argue about it.</p>
+  </div>
+  <div class="bench" id="bench-trem"></div>
+  <aside class="try">
+    <h4>Try this</h4>
+    <ul>
+      <li>Set <b>Rate</b> to match the beat of the chords. Tremolo works best locked to the tempo.</li>
+      <li>Switch the shape to <b>square</b> and push the depth to 100%: a choppy, stuttering helicopter effect.</li>
+      <li>Try <b>Vibrato</b> with a slow rate and moderate depth. Remember this sound, because the next pedal is built from it.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ============ 6. CHORUS / FLANGER ============ -->
+<section class="chapter" id="chorus" data-title="Chorus & Flanger" data-time="1.5" style="--accent:#2bb3a3">
+  <div class="chapter-head">
+    <span class="chapter-num">06</span>
+    <div>
+      <p class="family">Modulation</p>
+      <h2>Chorus &amp; flanger</h2>
+      <p class="hook">One recipe, two very different flavors.</p>
+    </div>
+  </div>
+  <div class="prose">
+    <p>Here's the recipe: make a copy of your signal and <strong>delay it by a few milliseconds</strong>. Then let an LFO slowly nudge that delay time longer and shorter. A delay that keeps changing makes the pitch wobble, so the copy has vibrato. Finally, <strong>mix the wobbly copy back in with the original</strong>.</p>
+    <dl class="flavors">
+      <dt>Chorus</dt><dd>A longer delay (15–30 ms) with no feedback. The copy sounds like a second guitarist playing along, slightly out of tune. It's shimmery, lush and wide. Think 80s clean tones and “Come As You Are”.</dd>
+      <dt>Flanger</dt><dd>A very short delay (1–5 ms) plus <strong>feedback</strong>, which sends some of the output back into the delay. At that short gap the two copies interfere: some frequencies cancel out and others add up, in an evenly spaced pattern called a <em>comb filter</em>. As the LFO sweeps, the comb slides up and down and you hear a jet plane.</dd>
+    </dl>
+    <p>The name comes from tape machines. Engineers played two identical tapes at once and pressed a thumb on the <em>flange</em> (the rim) of one reel to slow it down slightly.</p>
+  </div>
+  <div class="bench" id="bench-chorus"></div>
+  <aside class="try">
+    <h4>Try this</h4>
+    <ul>
+      <li>With headphones on, play <i>Strummed chords</i> through the <b>Chorus</b> preset. The left and right ears wobble in opposite directions, so it sounds huge.</li>
+      <li>Pick <b>Flanger</b> and watch the comb's “teeth” in the graph slide as you hear the whoosh.</li>
+      <li>Turn <b>Feedback</b> negative: the notches and peaks swap places and the tone goes hollow.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ============ 7. PHASER ============ -->
+<section class="chapter" id="phaser" data-title="Phaser" data-time="1" style="--accent:#e85d8e">
+  <div class="chapter-head">
+    <span class="chapter-num">07</span>
+    <div>
+      <p class="family">Modulation</p>
+      <h2>The phaser</h2>
+      <p class="hook">A swoosh with no delay at all.</p>
+    </div>
+  </div>
+  <div class="prose">
+    <p>A phaser gets a similar swirl using a different trick. Instead of a delay, it runs the signal through a chain of <strong>all‑pass filters</strong>. These filters don't make any frequency louder or quieter. They only shift its timing, and they shift some frequencies more than others.</p>
+    <p>Mix that shifted copy with the original. Wherever a frequency comes out exactly half a cycle out of step, its peaks meet the other copy's troughs and the two <strong>cancel</strong>. That makes a few deep notches. An LFO sweeps the filters, so the notches glide up and down.</p>
+    <p><strong>Phaser vs. flanger:</strong> a flanger makes <em>many</em> evenly spaced notches, which sounds metallic, like a jet. A phaser makes just <em>a few</em> notches spread unevenly, which sounds softer and more vocal. Every two filter <b>stages</b> add one notch. The classic 4‑stage phaser is all over 70s funk and early Van Halen.</p>
+  </div>
+  <div class="bench" id="bench-phaser"></div>
+  <aside class="try">
+    <h4>Try this</h4>
+    <ul>
+      <li>Count the notches in the graph as you switch between <b>2</b>, <b>4</b>, <b>6</b> and <b>8</b> stages.</li>
+      <li>Slow the <b>Rate</b> right down and turn up <b>Resonance</b> for a deep, liquid sweep.</li>
+      <li>Jump back up to the flanger and compare. Once you hear the difference you won't un‑hear it.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ============ 8. DELAY ============ -->
+<section class="chapter" id="delay" data-title="Delay & Echo" data-time="1.5" style="--accent:#4c9a5a">
+  <div class="chapter-head">
+    <span class="chapter-num">08</span>
+    <div>
+      <p class="family">Time</p>
+      <h2>Delay &amp; echo</h2>
+      <p class="hook">Hello… hello… hello…</p>
+    </div>
+  </div>
+  <div class="prose">
+    <p>A delay records what you play and plays it back a moment later. The <strong>feedback</strong> knob sends that echo back into the delay again, so you hear an echo of the echo of the echo, each one a little quieter.</p>
+    <p>The graph shows the pedal's <strong>impulse response</strong>: if you played one tiny click, this is what would come out. The first bar is you, and every bar after it is a repeat.</p>
+    <ul class="knob-list">
+      <li><b>Under 50 ms</b>: <em>doubling</em>. Too fast to hear as an echo, so it just sounds thicker, like two guitars.</li>
+      <li><b>80–150 ms</b>: <em>slapback</em>. One quick bounce, the sound of 50s rockabilly and early Elvis.</li>
+      <li><b>300–600 ms</b>: <em>echo</em>. Distinct, rhythmic repeats. Set it to a <em>dotted eighth note</em> and your playing turns into a cascade, the way U2's The Edge plays.</li>
+      <li><b>Tone</b>: old tape echoes and analog delays lost some treble on every repeat. Turning this down gives you that warm, fading, vintage repeat.</li>
+    </ul>
+  </div>
+  <div class="bench" id="bench-delay"></div>
+  <aside class="try">
+    <h4>Try this</h4>
+    <ul>
+      <li>Use <i>Single note</i> and step through the presets from Doubling to Ambient.</li>
+      <li>With the <b>Dotted 8th</b> preset, switch to the <i>Lead lick</i>. The echoes fill the gaps between notes.</li>
+      <li>Twist <b>Time</b> while repeats are ringing. The pitch bends just like a tape machine slowing down.</li>
+      <li>Tap the <b>TAP</b> switch in rhythm to set the delay time by hand.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ============ 9. REVERB ============ -->
+<section class="chapter" id="reverb" data-title="Reverb" data-time="1.5" style="--accent:#4a5bd4">
+  <div class="chapter-head">
+    <span class="chapter-num">09</span>
+    <div>
+      <p class="family">Time</p>
+      <h2>Reverb</h2>
+      <p class="hook">A room in a box.</p>
+    </div>
+  </div>
+  <div class="prose">
+    <p>Clap your hands in a cathedral. The sound bounces off the walls, floor and ceiling, and thousands of reflections reach your ears later and quieter until they blur into a smooth, fading wash. <strong>Reverb is a delay with millions of repeats, too close together to hear one by one.</strong></p>
+  </div>
+  <figure class="room-figure">
+    <svg viewBox="0 0 640 220" role="img" aria-label="Sound travelling directly from a speaker to a listener, and also bouncing off walls">
+      <rect x="10" y="10" width="620" height="200" rx="6" class="room-wall"/>
+      <path d="M120 120 L520 120" class="ray ray-direct"/>
+      <path d="M120 120 L320 10 L520 120" class="ray ray-early"/>
+      <path d="M120 120 L300 210 L520 120" class="ray ray-early"/>
+      <path d="M120 120 L630 60 L520 120" class="ray ray-early2"/>
+      <path d="M120 120 L10 170 L240 210 L520 120" class="ray ray-late"/>
+      <path d="M120 120 L200 10 L630 170 L520 120" class="ray ray-late"/>
+      <g transform="translate(92 98)"><rect width="30" height="44" rx="4" fill="#3a302b"/><circle cx="15" cy="28" r="9" fill="#c9b48a"/><circle cx="15" cy="11" r="4" fill="#c9b48a"/></g>
+      <g transform="translate(520 100)"><circle cx="12" cy="10" r="10" fill="#f2c9a0" stroke="#2b2320" stroke-width="2.5"/><path d="M-2 46 C -2 26, 26 26, 26 46" fill="#4a5bd4" stroke="#2b2320" stroke-width="2.5"/></g>
+      <text x="320" y="112" text-anchor="middle" class="room-lbl lbl-direct">direct sound</text>
+      <text x="320" y="34" text-anchor="middle" class="room-lbl lbl-early">early reflections</text>
+      <text x="170" y="196" text-anchor="middle" class="room-lbl lbl-late">…and thousands more</text>
+    </svg>
+  </figure>
+  <div class="prose">
+    <p>A reverb has three parts, and you'll see all of them in the graph: the <strong>direct sound</strong>, a handful of <strong>early reflections</strong> (they tell your brain how big the room is and what shape), and the <strong>tail</strong>, the dense wash that fades away. <b>Decay</b> sets how long the tail lasts. Engineers measure it as the time the sound takes to fade by 60 dB.</p>
+    <dl class="flavors">
+      <dt>Room &amp; Hall</dt><dd>Imitate real spaces: tight and natural, or big and lush.</dd>
+      <dt>Plate</dt><dd>In 1950s studios this was a giant steel sheet with a speaker on one side and a pickup on the other. Bright, dense and smooth.</dd>
+      <dt>Spring</dt><dd>Built into guitar amps: a speaker shakes a metal spring. It's drippy and boingy, the sound of surf guitar. (Kick an amp that has one and it crashes like thunder.)</dd>
+    </dl>
+    <p><b>Pre‑delay</b> adds a short gap before the reverb starts, so your notes stay clear while the room blooms behind them. <b>Damping</b> copies soft surfaces like curtains and people, which soak up the high frequencies first.</p>
+  </div>
+  <div class="bench" id="bench-reverb"></div>
+  <aside class="try">
+    <h4>Try this</h4>
+    <ul>
+      <li>Use <i>Single note</i> and step through Room → Hall → Plate. Listen to the size of the space change.</li>
+      <li>Pick <b>Spring</b> with a short decay, then play the <i>Lead lick</i>. Instant surf.</li>
+      <li>Turn <b>Decay</b> all the way up and <b>Mix</b> past halfway. The guitar dissolves into an ambient cloud.</li>
+    </ul>
+  </aside>
+</section>
+
+<!-- ============ 10. PEDALBOARD ============ -->
+<section class="chapter" id="board" data-title="Your pedalboard" data-time="2" style="--accent:#d1495b">
+  <div class="chapter-head">
+    <span class="chapter-num">10</span>
+    <div>
+      <p class="family">Putting it together</p>
+      <h2>Build a pedalboard</h2>
+      <p class="hook">Order matters. A lot.</p>
+    </div>
+  </div>
+  <div class="prose">
+    <p>Here's every pedal you've met, chained together. Stomp them on, tweak them, and use the arrows to <strong>rearrange the order</strong>. The usual order, from guitar to amp, is:</p>
+    <p class="order-line"><span style="--c:#8e5fc0">wah</span> → <span style="--c:#2e86ab">compressor</span> → <span style="--c:#ee7b30">drive</span> → <span style="--c:#2bb3a3">modulation</span> → <span style="--c:#4c9a5a">delay</span> → <span style="--c:#4a5bd4">reverb</span></p>
+    <p>Why? Drive goes before delay so that each echo is a clean copy of a distorted note. The other way round, the echoes pile up inside the distortion and turn to mud. Reverb goes last because it's the room you're playing <em>in</em>. Rules are made to be broken, though. Shoegaze bands put huge reverbs <em>into</em> fuzz on purpose. Try the <b>Backwards</b> preset to hear what that does.</p>
+  </div>
+  <div class="bench bench-board" id="bench-board"></div>
+</section>
+
+<!-- ============ 11. QUIZ ============ -->
+<section class="chapter" id="quiz" data-title="Name that pedal" data-time="2" style="--accent:#2b2320">
+  <div class="chapter-head">
+    <span class="chapter-num">11</span>
+    <div>
+      <p class="family">Ear training</p>
+      <h2>Name that pedal</h2>
+      <p class="hook">Six mystery sounds. How many can you spot?</p>
+    </div>
+  </div>
+  <div class="prose"><p>Each round plays a riff through one mystery effect. Listen, compare it to the dry signal if you need to, and pick the pedal.</p></div>
+  <div class="quiz" id="quiz-box"></div>
+</section>
+
+<!-- ============ 12. CHEAT SHEET ============ -->
+<section class="chapter" id="cheat" data-title="Cheat sheet" data-time="1" style="--accent:#4c9a5a">
+  <div class="chapter-head">
+    <span class="chapter-num">12</span>
+    <div>
+      <p class="family">Take‑away</p>
+      <h2>The cheat sheet</h2>
+      <p class="hook">Everything on one page.</p>
+    </div>
+  </div>
+  <div class="cheat">
+    <div class="cheat-card" style="--c:#ee7b30"><h4>Overdrive / Distortion / Fuzz</h4><p class="what">Clips the waveform, adding harmonics.</p><p><b>Knobs:</b> Drive, Tone, Level</p><p><b>Listen for:</b> grit, growl, sustain, buzz</p></div>
+    <div class="cheat-card" style="--c:#2e86ab"><h4>Compressor</h4><p class="what">Turns loud parts down so everything is more even.</p><p><b>Knobs:</b> Threshold, Ratio, Attack, Release</p><p><b>Listen for:</b> squish, sustain, steady level</p></div>
+    <div class="cheat-card" style="--c:#8e5fc0"><h4>EQ / Wah</h4><p class="what">Boosts or cuts frequencies. A wah sweeps a resonant peak.</p><p><b>Knobs:</b> Frequency, Resonance (Q)</p><p><b>Listen for:</b> “wah”, vowels, brighter or darker tone</p></div>
+    <div class="cheat-card" style="--c:#e2a72e"><h4>Tremolo / Vibrato</h4><p class="what">An LFO wobbles the volume (tremolo) or the pitch (vibrato).</p><p><b>Knobs:</b> Rate, Depth, Shape</p><p><b>Listen for:</b> pulsing, throbbing, wavering</p></div>
+    <div class="cheat-card" style="--c:#2bb3a3"><h4>Chorus / Flanger</h4><p class="what">A short, wobbling delayed copy mixed with the original. Flanger is shorter, with feedback.</p><p><b>Knobs:</b> Rate, Depth, Delay, Feedback, Mix</p><p><b>Listen for:</b> shimmer, width (chorus) · jet whoosh (flanger)</p></div>
+    <div class="cheat-card" style="--c:#e85d8e"><h4>Phaser</h4><p class="what">All‑pass filters plus the dry signal make a few sweeping notches.</p><p><b>Knobs:</b> Rate, Depth, Stages, Resonance</p><p><b>Listen for:</b> soft, liquid, vocal swirl</p></div>
+    <div class="cheat-card" style="--c:#4c9a5a"><h4>Delay / Echo</h4><p class="what">Plays your sound back later, again and again.</p><p><b>Knobs:</b> Time, Feedback, Mix, Tone</p><p><b>Listen for:</b> distinct repeats, slapback, doubling</p></div>
+    <div class="cheat-card" style="--c:#4a5bd4"><h4>Reverb</h4><p class="what">Thousands of blurred reflections: the sound of a space.</p><p><b>Knobs:</b> Decay, Pre‑delay, Damping, Mix</p><p><b>Listen for:</b> room, hall, ambience, wash</p></div>
+  </div>
+  <div class="prose outro">
+    <p>That's the whole pedalboard. Next time you hear a song, try to pick out the effects: the throb, the swirl, the slapback, the wash. And if you play guitar, plug it in with the <b>Live input</b> button at the bottom of the page and run it through everything.</p>
+    <p class="sign">Class dismissed. 🎸</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">Every sound on this page is generated live in your browser with the Web Audio API. No samples, no plugins.</footer>
+
+<div class="dock" id="dock">
+  <div class="dock-status"><span class="dock-dot"></span><span id="dock-text">Nothing playing</span></div>
+  <button type="button" class="dock-stop" id="dock-stop" title="Stop all sound">■ Stop</button>
+  <label class="dock-vol" title="Master volume"><span aria-hidden="true">🔊</span><input type="range" id="dock-vol" min="0" max="1" step="0.01" value="0.7" aria-label="Master volume"></label>
+  <label class="dock-file" title="Load your own audio file"><input type="file" id="dock-file" accept="audio/*" hidden>＋ Your audio</label>
+</div>
+
+<script src="js/audio.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/effects.js"></script>
+<script src="js/ch-sound.js"></script>
+<script src="js/ch-drive.js"></script>
+<script src="js/ch-comp.js"></script>
+<script src="js/ch-filter.js"></script>
+<script src="js/ch-trem.js"></script>
+<script src="js/ch-chorus.js"></script>
+<script src="js/ch-phaser.js"></script>
+<script src="js/ch-delay.js"></script>
+<script src="js/ch-reverb.js"></script>
+<script src="js/ch-board.js"></script>
+<script src="js/ch-quiz.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
