@@ -110,26 +110,6 @@ main { max-width: 1120px; margin: 0 auto; padding: 30px 20px 110px; }
 .big-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #000; }
 .hero-note { color: var(--ink-2); font-size: 15px; }
 
-/* ---------- five jobs ---------- */
-.families { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 10px 0 0; }
-.fam {
-  text-decoration: none; background: var(--card); border-radius: 14px; padding: 14px; border-top: 7px solid var(--c);
-  box-shadow: 0 1px 0 var(--line), 0 8px 20px rgba(45,38,34,.05); display: flex; flex-direction: column; gap: 3px; transition: transform .15s;
-}
-.fam:hover { transform: translateY(-3px); }
-.fam b { font-family: var(--display); font-size: 21px; }
-.fam span { font-size: 15px; color: var(--ink-2); line-height: 1.35; }
-.fam i { font-style: normal; font-family: var(--mono); font-size: 12px; color: color-mix(in oklab, var(--c) 80%, black); margin-top: auto; padding-top: 8px; }
-@media (max-width: 900px) { .families { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 460px) { .families { grid-template-columns: 1fr; } }
-.chain-figure { max-width: 720px; margin: 18px auto 22px; }
-.chain-figure svg { width: 100%; height: auto; display: block; }
-.chain-figure text { font-family: var(--mono); font-size: 14px; fill: var(--ink-2); }
-.chain-pedal rect { fill: var(--c); stroke: #2d2622; stroke-width: 3; }
-.chain-pedal .sw { fill: #ddd; stroke: #2d2622; stroke-width: 2; }
-.chain-pedal .kn { fill: #f7f1e4; stroke: #2d2622; stroke-width: 2; }
-.cable { stroke: #2d2622; stroke-width: 6; fill: none; stroke-linecap: round; }
-
 /* ---------- bench ---------- */
 .bench {
   background: linear-gradient(180deg, #fbf8f1, #f7f1e5); border-radius: 22px; padding: 16px 18px 18px;
