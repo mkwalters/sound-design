@@ -91,7 +91,7 @@
       if (k === 'tone') smooth(tone.frequency, 500 * Math.pow(12000 / 500, p.tone));
       if (k === 'level') {
         const comp = 1 / (1 + p.drive * (p.mode === 'fuzz' ? 2 : p.mode === 'distortion' ? 1.6 : 1.1));
-        smooth(level.gain, p.level * 0.5 * comp);
+        smooth(level.gain, p.level * 0.4 * comp);
       }
     };
     return finish(fx, ['mode', 'tone']);
@@ -112,7 +112,7 @@
       if (k === 'ratio') smooth(comp.ratio, p.ratio);
       if (k === 'attack') comp.attack.value = p.attack;
       if (k === 'release') comp.release.value = p.release;
-      if (k === 'makeup') smooth(makeup.gain, SD.dbToGain(p.makeup) * 0.85);
+      if (k === 'makeup') smooth(makeup.gain, SD.dbToGain(p.makeup) * 0.6);
     };
     return finish(fx);
   };

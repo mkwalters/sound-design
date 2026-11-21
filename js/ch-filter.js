@@ -91,5 +91,5 @@
   SD.onFrame(() => { resp.draw(); renderTreadle(); }, document.getElementById('bench-filter'));
   renderTreadle();
 
-  const bench = SD.bench('filter', { label: 'Quack wah', sources: ['saw', 'pulses', 'lick', 'chords', 'drums'], source: 'saw', dest: () => fx.inputNode, pedal, graphs: [resp] });
+  const bench = SD.bench('filter', { label: 'Quack wah', sources: ['funk', 'held', 'lick', 'saw'], source: 'funk', dest: () => fx.inputNode, pedal, graphs: [resp] });
 })();

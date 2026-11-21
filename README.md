@@ -6,22 +6,24 @@ tremolo/vibrato, chorus/flanger, phaser, delay and reverb, ending with a reorder
 pedalboard, a "name that pedal" ear-training quiz and a cheat sheet. Hover any knob for a
 one-line explanation.
 
-Every sound is synthesized live with the Web Audio API. Demos default to simple synth tones
-(pure, buzzy, blip, loud & soft) because they make each effect easy to hear; guitar riffs
-(Karplus-Strong plucked strings) and a drum loop are one click away, so there are no audio assets. You can also load your own audio file
-or use a live input (guitar interface or mic).
+Demo audio comes from a small sampler built on real electric-guitar samples
+(FreePats "Electric Guitar FSBS Jazz", **CC0**, so commercial use is fine; see
+`assets/guitar/LICENSE.txt`). Each effect page defaults to a phrase written to show that
+effect off: palm-muted power chords for drive, dynamic fingerpicking for compression,
+funk 16ths for wah, ringing chords for tremolo/phaser, arpeggios for chorus, a sparse
+melody for delay, chord stabs with space for reverb. Synth tones, a drum loop, your own
+audio file, or a live input are also available as sources.
 
 ## Run it
 
-No build step. Open `index.html` directly, or serve the folder:
+No build step, but it must be served (the guitar samples are fetched over HTTP):
 
     python3 -m http.server 8000   # then visit http://localhost:8000
 
-(Live input needs `localhost` or https.)
-
 ## Layout
 
-- `js/audio.js` – AudioContext, master bus + limiter, synthesized sources, global player
+- `js/audio.js` – AudioContext, master bus + limiter, guitar sampler + phrase library, synth sources, global player
+- `assets/guitar/` – 35 trimmed CC0 guitar samples (9.5 MB)
 - `js/effects.js` – effect factories (each with a bypass footswitch wrapper)
 - `js/ui.js` – knobs, pedals, segmented controls, canvases, transport, frame loop
 - `js/ch-*.js` – one file per chapter (controls + visualizations)

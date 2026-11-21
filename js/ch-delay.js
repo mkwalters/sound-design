@@ -79,5 +79,5 @@
     }
   };
 
-  const bench = SD.bench('delay', { label: 'Canyon Echo delay', sources: ['blip', 'pluck', 'lick', 'drums'], source: 'blip', dest: () => fx.inputNode, pedal, graphs: [ir], headExtra: preset.el });
+  const bench = SD.bench('delay', { label: 'Canyon Echo delay', sources: ['sparse', 'stab', 'lick', 'blip'], source: 'sparse', dest: () => fx.inputNode, pedal, graphs: [ir], headExtra: preset.el });
 })();

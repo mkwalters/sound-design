@@ -284,7 +284,7 @@
     SD.player.on(() => {
       const on = SD.player.isOwner(owner);
       play.classList.toggle('playing', on);
-      label.textContent = on ? 'Stop' : 'Play';
+      label.textContent = on ? (SD.player.current.loading ? 'Loading…' : 'Stop') : 'Play';
     });
     SD.onSources(renderChips);
     renderChips();

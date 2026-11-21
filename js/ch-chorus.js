@@ -79,5 +79,5 @@
   };
   SD.onFrame(() => { dly.draw(); comb.draw(); }, document.getElementById('bench-chorus'));
 
-  SD.bench('chorus', { label: 'Shimmer Twins', sources: ['saw', 'sine', 'chords', 'lick', 'drums'], source: 'saw', dest: () => fx.inputNode, pedal, graphs: [dly, comb] });
+  SD.bench('chorus', { label: 'Shimmer Twins', sources: ['arp', 'held', 'lick', 'saw', 'drums'], source: 'arp', dest: () => fx.inputNode, pedal, graphs: [dly, comb] });
 })();

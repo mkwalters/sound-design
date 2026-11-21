@@ -108,5 +108,5 @@
     curve.draw(); hist.draw();
   }, document.getElementById('bench-comp'));
 
-  const bench = SD.bench('comp', { label: 'Squeezebox compressor', sources: ['pulses', 'blip', 'drums', 'pluck', 'chords'], source: 'pulses', dest: () => fx.inputNode, pedal, graphs: [curve, hist], graphLayout: 'two' });
+  const bench = SD.bench('comp', { label: 'Squeezebox compressor', sources: ['dynamic', 'note', 'funk', 'pulses', 'drums'], source: 'dynamic', dest: () => fx.inputNode, pedal, graphs: [curve, hist], graphLayout: 'two' });
 })();

@@ -96,13 +96,13 @@
 
   const PRESETS = [
     { id: 'dry', label: 'All off', on: {} },
-    { id: 'clean', label: 'Clean sparkle', on: { comp: { threshold: -32, ratio: 4 }, chorus: { preset: 'chorus', depth: 0.55 }, reverb: { type: 'hall', decay: 2.4, mix: 0.3 } } },
-    { id: 'rock', label: 'Rock lead', on: { drive: { mode: 'overdrive', drive: 0.7, tone: 0.55 }, delay: { time: 0.45, feedback: 0.35, mix: 0.3 }, reverb: { type: 'room', decay: 1.2, mix: 0.25 } } },
-    { id: 'grunge', label: 'Grunge', on: { drive: { mode: 'distortion', drive: 0.75, tone: 0.5 }, chorus: { preset: 'chorus', rate: 0.6, depth: 0.75 } } },
-    { id: 'surf', label: 'Surf', on: { trem: { rate: 6.5, depth: 0.6 }, reverb: { type: 'spring', decay: 2.5, mix: 0.45 } } },
-    { id: 'funk', label: 'Funk', on: { wah: { sens: 0.6, res: 0.6 }, comp: { threshold: -36, ratio: 6 }, phaser: { rate: 0.5, depth: 0.6 } } },
-    { id: 'shoegaze', label: 'Shoegaze', on: { drive: { mode: 'fuzz', drive: 0.55, tone: 0.4 }, chorus: { preset: 'flanger', rate: 0.15, depth: 0.8 }, delay: { time: 0.6, feedback: 0.6, mix: 0.4 }, reverb: { type: 'hall', decay: 7, mix: 0.6 } } },
-    { id: 'backwards', label: 'Backwards!', order: ['reverb', 'delay', 'drive', 'wah', 'comp', 'chorus', 'phaser', 'trem'],
+    { id: 'clean', label: 'Clean sparkle', src: 'arp', on: { comp: { threshold: -32, ratio: 4 }, chorus: { preset: 'chorus', depth: 0.55 }, reverb: { type: 'hall', decay: 2.4, mix: 0.3 } } },
+    { id: 'rock', label: 'Rock lead', src: 'lick', on: { drive: { mode: 'overdrive', drive: 0.7, tone: 0.55 }, delay: { time: 0.45, feedback: 0.35, mix: 0.3 }, reverb: { type: 'room', decay: 1.2, mix: 0.25 } } },
+    { id: 'grunge', label: 'Grunge', src: 'riff', on: { drive: { mode: 'distortion', drive: 0.75, tone: 0.5 }, chorus: { preset: 'chorus', rate: 0.6, depth: 0.75 } } },
+    { id: 'surf', label: 'Surf', src: 'sparse', on: { trem: { rate: 6.5, depth: 0.6 }, reverb: { type: 'spring', decay: 2.5, mix: 0.45 } } },
+    { id: 'funk', label: 'Funk', src: 'funk', on: { wah: { sens: 0.6, res: 0.6 }, comp: { threshold: -36, ratio: 6 }, phaser: { rate: 0.5, depth: 0.6 } } },
+    { id: 'shoegaze', label: 'Shoegaze', src: 'held', on: { drive: { mode: 'fuzz', drive: 0.55, tone: 0.4 }, chorus: { preset: 'flanger', rate: 0.15, depth: 0.8 }, delay: { time: 0.6, feedback: 0.6, mix: 0.4 }, reverb: { type: 'hall', decay: 7, mix: 0.6 } } },
+    { id: 'backwards', label: 'Backwards!', src: 'lick', order: ['reverb', 'delay', 'drive', 'wah', 'comp', 'chorus', 'phaser', 'trem'],
       on: { reverb: { type: 'hall', decay: 3, mix: 0.5 }, delay: { time: 0.375, feedback: 0.5, mix: 0.5 }, drive: { mode: 'distortion', drive: 0.8, tone: 0.5 } } },
   ];
   function applyPreset(pid) {
@@ -114,10 +114,14 @@
       if (cfg) Object.entries(cfg).forEach(([k, v]) => u.controls[k] && u.controls[k].set(v));
     });
     render(); wire();
+    if (pr.src && pr.src !== tr.source) {
+      tr.setSource(pr.src);
+      if (SD.player.isOwner(tr.owner)) tr.start();
+    }
   }
   const presetSeg = SD.segmented({ label: 'Board presets', options: PRESETS.map((p) => ({ value: p.id, label: p.label })), value: 'dry', onChange: applyPreset });
 
-  const tr = SD.transport({ label: 'Pedalboard', sources: ['saw', 'blip', 'chords', 'lick', 'chug', 'drums'], value: 'saw', dest: () => input });
+  const tr = SD.transport({ label: 'Pedalboard', sources: ['arp', 'lick', 'riff', 'funk', 'held', 'drums'], value: 'arp', dest: () => input });
 
   const scope = SD.canvas({ label: 'Output waveform', height: 80 });
   const spec = SD.canvas({ label: 'Output spectrum', height: 80 });

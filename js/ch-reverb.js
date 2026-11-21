@@ -70,5 +70,5 @@
     }
   };
 
-  SD.bench('reverb', { label: 'Big Room reverb', sources: ['blip', 'pluck', 'lick', 'drums'], source: 'blip', dest: () => fx.inputNode, pedal, graphs: [irC] });
+  SD.bench('reverb', { label: 'Big Room reverb', sources: ['stab', 'sparse', 'note', 'blip'], source: 'stab', dest: () => fx.inputNode, pedal, graphs: [irC] });
 })();

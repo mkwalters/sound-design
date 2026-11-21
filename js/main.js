@@ -75,7 +75,7 @@
     stop.disabled = !c;
     if (!c) { text.textContent = 'Nothing playing'; return; }
     const srcName = typeof c.src === 'string' && SD.sources[c.src] ? SD.sources[c.src].label + ' → ' : '';
-    text.textContent = srcName + c.owner.label;
+    text.textContent = (c.loading ? 'Loading… ' : '') + srcName + c.owner.label;
   };
   SD.player.on(update);
   update(null);

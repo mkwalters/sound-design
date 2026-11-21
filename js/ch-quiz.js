@@ -4,21 +4,21 @@
   const box = document.getElementById('quiz-box');
 
   const BANK = [
-    { id: 'drive', label: 'Distortion / fuzz', color: 'var(--c-drive)', src: 'sine', make: () => { const f = SD.fx.drive(); f.setMany({ mode: 'fuzz', drive: 0.7 }); return f; },
+    { id: 'drive', label: 'Distortion / fuzz', color: 'var(--c-drive)', src: 'riff', make: () => { const f = SD.fx.drive(); f.setMany({ mode: 'fuzz', drive: 0.7 }); return f; },
       why: 'Clipped and buzzy. The peaks are flattened.' },
-    { id: 'wah', label: 'Wah', color: 'var(--c-filter)', src: 'saw', make: () => { const f = SD.fx.filter(); f.setMany({ auto: 'lfo', rate: 1.6, res: 0.6 }); return f; },
+    { id: 'wah', label: 'Wah', color: 'var(--c-filter)', src: 'funk', make: () => { const f = SD.fx.filter(); f.setMany({ auto: 'lfo', rate: 1.6, res: 0.6 }); return f; },
       why: 'A peak sweeping up and down: “wah‑wah”.' },
-    { id: 'trem', label: 'Tremolo', color: 'var(--c-trem)', src: 'sine', make: () => { const f = SD.fx.trem(); f.setMany({ rate: 6, depth: 0.85 }); return f; },
+    { id: 'trem', label: 'Tremolo', color: 'var(--c-trem)', src: 'held', make: () => { const f = SD.fx.trem(); f.setMany({ rate: 6, depth: 0.85 }); return f; },
       why: 'Volume pulses. Pitch stays put.' },
-    { id: 'chorus', label: 'Chorus', color: 'var(--c-chorus)', src: 'saw', make: () => { const f = SD.fx.chorus(); f.setMany({ rate: 1.0, depth: 0.7, delay: 20, feedback: 0, mix: 0.5 }); return f; },
+    { id: 'chorus', label: 'Chorus', color: 'var(--c-chorus)', src: 'arp', make: () => { const f = SD.fx.chorus(); f.setMany({ rate: 1.0, depth: 0.7, delay: 20, feedback: 0, mix: 0.5 }); return f; },
       why: 'Gentle shimmer, like two players slightly out of tune.' },
-    { id: 'flanger', label: 'Flanger', color: 'var(--c-chorus)', src: 'saw', make: () => { const f = SD.fx.chorus(); f.setMany({ rate: 0.2, depth: 0.9, delay: 2.8, feedback: 0.8, mix: 0.5 }); return f; },
+    { id: 'flanger', label: 'Flanger', color: 'var(--c-chorus)', src: 'held', make: () => { const f = SD.fx.chorus(); f.setMany({ rate: 0.2, depth: 0.9, delay: 2.8, feedback: 0.8, mix: 0.5 }); return f; },
       why: 'A metallic jet whoosh from a sliding comb.' },
-    { id: 'phaser', label: 'Phaser', color: 'var(--c-phaser)', src: 'saw', make: () => { const f = SD.fx.phaser(); f.setMany({ rate: 0.5, depth: 0.85, stages: 6, res: 0.4 }); return f; },
+    { id: 'phaser', label: 'Phaser', color: 'var(--c-phaser)', src: 'arp', make: () => { const f = SD.fx.phaser(); f.setMany({ rate: 0.5, depth: 0.85, stages: 6, res: 0.4 }); return f; },
       why: 'A soft swirl from a few sweeping notches.' },
-    { id: 'delay', label: 'Delay', color: 'var(--c-delay)', src: 'blip', make: () => { const f = SD.fx.delay(); f.setMany({ time: 0.42, feedback: 0.5, mix: 0.55, tone: 0.6 }); return f; },
+    { id: 'delay', label: 'Delay', color: 'var(--c-delay)', src: 'sparse', make: () => { const f = SD.fx.delay(); f.setMany({ time: 0.42, feedback: 0.5, mix: 0.55, tone: 0.6 }); return f; },
       why: 'Separate, distinct repeats.' },
-    { id: 'reverb', label: 'Reverb', color: 'var(--c-reverb)', src: 'blip', make: () => { const f = SD.fx.reverb(); f.setMany({ type: 'hall', decay: 4, mix: 0.55 }); return f; },
+    { id: 'reverb', label: 'Reverb', color: 'var(--c-reverb)', src: 'stab', make: () => { const f = SD.fx.reverb(); f.setMany({ type: 'hall', decay: 4, mix: 0.55 }); return f; },
       why: 'A smooth wash with no single echo: a big room.' },
   ];
   const ROUNDS = 6;

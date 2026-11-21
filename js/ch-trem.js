@@ -65,5 +65,5 @@
   };
   SD.onFrame(() => { lfoC.draw(); sig.draw(); }, document.getElementById('bench-trem'));
 
-  SD.bench('trem', { label: 'Wobble Lamp tremolo', sources: ['sine', 'saw', 'chords', 'lick'], source: 'sine', dest: () => fx.inputNode, pedal, graphs: [lfoC, sig] });
+  SD.bench('trem', { label: 'Wobble Lamp tremolo', sources: ['held', 'arp', 'note', 'sine'], source: 'held', dest: () => fx.inputNode, pedal, graphs: [lfoC, sig] });
 })();

@@ -42,5 +42,5 @@
   };
   SD.onFrame(() => resp.draw(), document.getElementById('bench-phaser'));
 
-  SD.bench('phaser', { label: 'Swoosh phaser', sources: ['saw', 'chords', 'lick', 'drums'], source: 'saw', dest: () => fx.inputNode, pedal, graphs: [resp] });
+  SD.bench('phaser', { label: 'Swoosh phaser', sources: ['held', 'funk', 'arp', 'saw'], source: 'held', dest: () => fx.inputNode, pedal, graphs: [resp] });
 })();

@@ -123,6 +123,6 @@
     if (live || was) waveC.draw();
   }, document.getElementById('bench-drive'));
 
-  const bench = SD.bench('drive', { label: 'Hot Toast drive', sources: ['sine', 'saw', 'chug', 'chords', 'lick'], source: 'sine', dest: () => fx.inputNode, pedal, graphs: [transfer, waveC, harm], graphLayout: 'two' });
+  const bench = SD.bench('drive', { label: 'Hot Toast drive', sources: ['riff', 'held', 'lick', 'sine'], source: 'riff', dest: () => fx.inputNode, pedal, graphs: [transfer, waveC, harm], graphLayout: 'two' });
   harm.el.style.gridColumn = '1 / -1';
 })();

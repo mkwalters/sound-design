@@ -389,3 +389,4 @@ main { max-width: 1120px; margin: 0 auto; padding: 30px 20px 110px; }
 .bench-pedal { min-width: 0; max-width: 100%; display: flex; justify-content: center; }
 @media (max-width: 880px) { .bench-pedal { width: 100%; } }
 @media (max-width: 440px) { .pedal.wah .pedal-knobs { gap: 8px; } }
+.credits { text-align: center; font-size: 13px; color: var(--ink-3); margin: 10px 0 0; }
