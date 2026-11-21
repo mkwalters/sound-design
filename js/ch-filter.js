@@ -6,7 +6,7 @@
   fx.outputNode.connect(SD.master);
 
   // --- treadle ---
-  const treadle = h('div', { class: 'treadle', role: 'slider', tabindex: 0, 'aria-label': 'Wah pedal position (drag up and down)' });
+  const treadle = h('div', { class: 'treadle', role: 'slider', tabindex: 0, 'aria-label': 'Wah pedal position (drag up and down)', 'data-tip': 'Drag up for toe down (bright), down for heel down (dark).', 'data-tip-title': 'Treadle' });
   const readout = h('div', { class: 'treadle-readout' }, '');
   const renderTreadle = () => {
     const pos = fx.curPos;
@@ -21,13 +21,17 @@
   }, { vertical: true, sens: 160 });
 
   const mode = SD.segmented({ label: 'Filter type', options: [
-    { value: 'wah', label: 'Wah' }, { value: 'lowpass', label: 'Low‑pass' }, { value: 'highpass', label: 'High‑pass' },
+    { value: 'wah', label: 'Wah', tip: 'A narrow peak that boosts one band. Sweep it to talk.' },
+    { value: 'lowpass', label: 'Low‑pass', tip: 'Lets the lows through and cuts the highs. Your tone knob.' },
+    { value: 'highpass', label: 'High‑pass', tip: 'Lets the highs through and cuts the lows. Thin and tinny.' },
   ], value: 'wah', onChange: (v) => fx.set('mode', v) });
-  const kRes = SD.knob({ label: 'Resonance', min: 0, max: 1, value: 0.45, small: true, format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('res', v) });
-  const kRate = SD.knob({ label: 'LFO rate', min: 0.1, max: 6, value: 1.2, scale: 'log', small: true, format: (v) => v.toFixed(2) + ' Hz', onInput: (v) => fx.set('rate', v) });
-  const kSens = SD.knob({ label: 'Sensitivity', min: 0, max: 1, value: 0.5, small: true, format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('sens', v) });
+  const kRes = SD.knob({ label: 'Resonance', tip: 'Height of the peak. More = more vocal and squelchy.', min: 0, max: 1, value: 0.45, small: true, format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('res', v) });
+  const kRate = SD.knob({ label: 'LFO rate', tip: 'How fast the automatic sweep moves.', min: 0.1, max: 6, value: 1.2, scale: 'log', small: true, format: (v) => v.toFixed(2) + ' Hz', onInput: (v) => fx.set('rate', v) });
+  const kSens = SD.knob({ label: 'Sensitivity', tip: 'How far harder picking opens the filter.', min: 0, max: 1, value: 0.5, small: true, format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('sens', v) });
   const autoSeg = SD.segmented({ small: true, label: 'Auto mode', options: [
-    { value: 'off', label: 'Foot' }, { value: 'lfo', label: 'LFO' }, { value: 'env', label: 'Envelope' },
+    { value: 'off', label: 'Foot', tip: 'You control it with the treadle.' },
+    { value: 'lfo', label: 'LFO', tip: 'A robot foot sweeps it back and forth.' },
+    { value: 'env', label: 'Envelope', tip: 'Follows your picking: hit harder and it opens up.' },
   ], value: 'off', onChange: (v) => { fx.set('auto', v); showAuto(); } });
   const showAuto = () => {
     kRate.el.style.display = fx.params.auto === 'lfo' ? '' : 'none';
@@ -36,14 +40,15 @@
 
   const pedal = SD.pedal({
     name: 'Quack', sub: 'wah · filter', fx, cls: 'wah', top: mode.el,
-    knobs: [kRes, kRate, kSens],
-    middle: h('div', { class: 'ctl-group', style: { width: '100%' } },
-      h('div', { class: 'ctl-group' }, h('span', { class: 'ctl-label' }, 'auto'), autoSeg.el),
+    middle: h('div', { class: 'wah-row' },
+      h('div', { class: 'wah-ctls' },
+        h('div', { class: 'ctl-group' }, h('span', { class: 'ctl-label' }, 'auto'), autoSeg.el),
+        h('div', { class: 'pedal-knobs' }, kRes.el, kRate.el, kSens.el)),
       h('div', { class: 'treadle-wrap' }, treadle, readout)),
   });
   showAuto();
 
-  const resp = SD.canvas({ label: 'Frequency response', hint: 'lows ← → highs', height: 290 });
+  const resp = SD.canvas({ label: 'Frequency response', hint: 'lows ← → highs', height: 300 });
   const NF = 260, freqs = SD.logFreqs(NF), mag = new Float32Array(NF), ph = new Float32Array(NF);
   const spec = new Float32Array(fx.postA.frequencyBinCount);
   const binHz = SD.ctx.sampleRate / fx.postA.fftSize;
@@ -86,5 +91,5 @@
   SD.onFrame(() => { resp.draw(); renderTreadle(); }, document.getElementById('bench-filter'));
   renderTreadle();
 
-  const bench = SD.bench('filter', { label: 'Quack wah', sources: ['chords', 'lick', 'chug', 'drums'], source: 'chords', dest: () => fx.inputNode, pedal, graphs: [resp] });
+  const bench = SD.bench('filter', { label: 'Quack wah', sources: ['saw', 'pulses', 'lick', 'chords', 'drums'], source: 'saw', dest: () => fx.inputNode, pedal, graphs: [resp] });
 })();

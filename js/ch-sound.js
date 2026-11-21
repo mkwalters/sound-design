@@ -25,12 +25,15 @@
     play.querySelector('.play-label').textContent = on ? 'Stop' : 'Play tone';
   });
 
-  const kPitch = SD.knob({ label: 'Pitch', min: 55, max: 1760, value: 220, scale: 'log', format: (v) => `${Math.round(v)} Hz · ${noteName(v)}`,
+  const kPitch = SD.knob({ label: 'Pitch', tip: 'How fast the wave wiggles. Faster means a higher note.', min: 55, max: 1760, value: 220, scale: 'log', format: (v) => `${Math.round(v)} Hz · ${noteName(v)}`,
     onInput: (v) => { p.freq = v; if (osc) osc.frequency.setTargetAtTime(v, ctx.currentTime, 0.02); } });
-  const kAmp = SD.knob({ label: 'Volume', min: 0, max: 1, value: 0.6, format: (v) => Math.round(v * 100) + '%',
+  const kAmp = SD.knob({ label: 'Volume', tip: 'How tall the wave is. Taller means louder.', min: 0, max: 1, value: 0.6, format: (v) => Math.round(v * 100) + '%',
     onInput: (v) => { p.amp = v; if (gain) gain.gain.setTargetAtTime(v * 0.32, ctx.currentTime, 0.02); } });
   const shape = SD.segmented({ label: 'Wave shape', options: [
-    { value: 'sine', label: 'Sine' }, { value: 'triangle', label: 'Triangle' }, { value: 'square', label: 'Square' }, { value: 'sawtooth', label: 'Saw' },
+    { value: 'sine', label: 'Sine', tip: 'Pure and smooth: just one frequency.' },
+    { value: 'triangle', label: 'Triangle', tip: 'Mellow, with a few soft harmonics.' },
+    { value: 'square', label: 'Square', tip: 'Hollow and buzzy, with odd harmonics.' },
+    { value: 'sawtooth', label: 'Saw', tip: 'Bright and brassy: every harmonic.' },
   ], value: 'sine', onChange: (v) => { p.shape = v; if (osc) osc.type = v; harm.draw(); } });
 
   const pedal = SD.pedal({ name: 'Wave Lab', sub: 'tone generator', knobs: [kPitch, kAmp],
@@ -105,8 +108,8 @@
 
   // ---- hero mini pedalboard ----
   const mini = document.getElementById('mini-board');
-  [['Drive', '#ee7b30', 'drive'], ['Comp', '#2e86ab', 'comp'], ['Wah', '#8e5fc0', 'filter'], ['Trem', '#e2a72e', 'trem'],
-    ['Chorus', '#2bb3a3', 'chorus'], ['Phaser', '#e85d8e', 'phaser'], ['Delay', '#4c9a5a', 'delay'], ['Reverb', '#4a5bd4', 'reverb']]
-    .forEach(([n, c, id], i) => mini.append(h('a', { class: 'mini-pedal', href: '#' + id, style: { '--c': c, '--d': i * 0.3 + 's' } },
+  [['Drive', 'drive', 'drive'], ['Comp', 'comp', 'comp'], ['Wah', 'filter', 'filter'], ['Trem', 'trem', 'trem'],
+    ['Chorus', 'chorus', 'chorus'], ['Phaser', 'phaser', 'phaser'], ['Delay', 'delay', 'delay'], ['Reverb', 'reverb', 'reverb']]
+    .forEach(([n, c, id], i) => mini.append(h('a', { class: 'mini-pedal', href: '#' + id, style: { '--c': `var(--c-${c})`, '--d': i * 0.3 + 's' } },
       h('span', { class: 'ml' }), h('span', { class: 'mk' }, h('i'), h('i')), h('b', null, n), h('span', { class: 'ms' }))));
 })();

@@ -10,25 +10,25 @@
   };
 
   const DEFS = {
-    wah: { name: 'Quack', sub: 'auto‑wah', color: '#8e5fc0', make: () => { const f = SD.fx.filter(); f.setMany({ auto: 'env' }); return f; },
-      knobs: [{ k: 'sens', label: 'Sens', min: 0, max: 1, v: 0.5, fmt: pct }, { k: 'res', label: 'Reso', min: 0, max: 1, v: 0.5, fmt: pct }] },
-    comp: { name: 'Squeezebox', sub: 'compressor', color: '#2e86ab', make: SD.fx.comp,
-      knobs: [{ k: 'threshold', label: 'Thresh', min: -60, max: 0, v: -30, fmt: (v) => Math.round(v) + 'dB' }, { k: 'ratio', label: 'Ratio', min: 1, max: 20, v: 4, scale: 'log', fmt: (v) => v.toFixed(0) + ':1' }] },
-    drive: { name: 'Hot Toast', sub: 'drive', color: '#ee7b30', make: SD.fx.drive,
+    wah: { name: 'Quack', sub: 'auto‑wah', color: 'var(--c-filter)', make: () => { const f = SD.fx.filter(); f.setMany({ auto: 'env' }); return f; },
+      knobs: [{ k: 'sens', label: 'Sens', tip: 'How much harder picking opens the wah.', min: 0, max: 1, v: 0.5, fmt: pct }, { k: 'res', label: 'Reso', tip: 'Height of the wah peak.', min: 0, max: 1, v: 0.5, fmt: pct }] },
+    comp: { name: 'Squeezebox', sub: 'compressor', color: 'var(--c-comp)', make: SD.fx.comp,
+      knobs: [{ k: 'threshold', label: 'Thresh', tip: 'Louder than this gets squashed.', min: -60, max: 0, v: -30, fmt: (v) => Math.round(v) + 'dB' }, { k: 'ratio', label: 'Ratio', tip: 'How hard it squashes.', min: 1, max: 20, v: 4, scale: 'log', fmt: (v) => v.toFixed(0) + ':1' }] },
+    drive: { name: 'Hot Toast', sub: 'drive', color: 'var(--c-drive)', make: SD.fx.drive,
       seg: { k: 'mode', options: [['overdrive', 'OD'], ['distortion', 'Dist'], ['fuzz', 'Fuzz']], v: 'overdrive' },
-      knobs: [{ k: 'drive', label: 'Drive', min: 0, max: 1, v: 0.55, fmt: pct }, { k: 'tone', label: 'Tone', min: 0, max: 1, v: 0.55, fmt: pct }] },
-    chorus: { name: 'Shimmer', sub: 'chorus · flanger', color: '#2bb3a3', make: SD.fx.chorus,
+      knobs: [{ k: 'drive', label: 'Drive', tip: 'How much grit.', min: 0, max: 1, v: 0.55, fmt: pct }, { k: 'tone', label: 'Tone', tip: 'Dark ↔ fizzy.', min: 0, max: 1, v: 0.55, fmt: pct }] },
+    chorus: { name: 'Shimmer', sub: 'chorus · flanger', color: 'var(--c-chorus)', make: SD.fx.chorus,
       seg: { k: 'preset', options: [['chorus', 'Chorus'], ['flanger', 'Flanger']], v: 'chorus' },
-      knobs: [{ k: 'rate', label: 'Rate', min: 0.05, max: 5, v: 0.8, scale: 'log', fmt: hz }, { k: 'depth', label: 'Depth', min: 0, max: 1, v: 0.5, fmt: pct }] },
-    phaser: { name: 'Swoosh', sub: 'phaser', color: '#e85d8e', make: SD.fx.phaser,
-      knobs: [{ k: 'rate', label: 'Rate', min: 0.05, max: 5, v: 0.4, scale: 'log', fmt: hz }, { k: 'depth', label: 'Depth', min: 0, max: 1, v: 0.75, fmt: pct }] },
-    trem: { name: 'Wobble', sub: 'tremolo', color: '#e2a72e', make: SD.fx.trem,
-      knobs: [{ k: 'rate', label: 'Rate', min: 0.5, max: 12, v: 5, scale: 'log', fmt: hz }, { k: 'depth', label: 'Depth', min: 0, max: 1, v: 0.6, fmt: pct }] },
-    delay: { name: 'Canyon', sub: 'delay', color: '#4c9a5a', make: SD.fx.delay,
-      knobs: [{ k: 'time', label: 'Time', min: 0.02, max: 1.5, v: 0.45, scale: 'log', fmt: (v) => Math.round(v * 1000) + 'ms' }, { k: 'feedback', label: 'Fdbk', min: 0, max: 0.95, v: 0.4, fmt: pct }, { k: 'mix', label: 'Mix', min: 0, max: 1, v: 0.4, fmt: pct }] },
-    reverb: { name: 'Big Room', sub: 'reverb', color: '#4a5bd4', make: SD.fx.reverb,
+      knobs: [{ k: 'rate', label: 'Rate', tip: 'Speed of the wobble.', min: 0.05, max: 5, v: 0.8, scale: 'log', fmt: hz }, { k: 'depth', label: 'Depth', tip: 'How far it wobbles.', min: 0, max: 1, v: 0.5, fmt: pct }] },
+    phaser: { name: 'Swoosh', sub: 'phaser', color: 'var(--c-phaser)', make: SD.fx.phaser,
+      knobs: [{ k: 'rate', label: 'Rate', tip: 'Speed of the wobble.', min: 0.05, max: 5, v: 0.4, scale: 'log', fmt: hz }, { k: 'depth', label: 'Depth', tip: 'How far it wobbles.', min: 0, max: 1, v: 0.75, fmt: pct }] },
+    trem: { name: 'Wobble', sub: 'tremolo', color: 'var(--c-trem)', make: SD.fx.trem,
+      knobs: [{ k: 'rate', label: 'Rate', tip: 'Speed of the wobble.', min: 0.5, max: 12, v: 5, scale: 'log', fmt: hz }, { k: 'depth', label: 'Depth', tip: 'How far it wobbles.', min: 0, max: 1, v: 0.6, fmt: pct }] },
+    delay: { name: 'Canyon', sub: 'delay', color: 'var(--c-delay)', make: SD.fx.delay,
+      knobs: [{ k: 'time', label: 'Time', tip: 'Gap between repeats.', min: 0.02, max: 1.5, v: 0.45, scale: 'log', fmt: (v) => Math.round(v * 1000) + 'ms' }, { k: 'feedback', label: 'Fdbk', tip: 'How many repeats.', min: 0, max: 0.95, v: 0.4, fmt: pct }, { k: 'mix', label: 'Mix', tip: 'Effect vs. dry signal.', min: 0, max: 1, v: 0.4, fmt: pct }] },
+    reverb: { name: 'Big Room', sub: 'reverb', color: 'var(--c-reverb)', make: SD.fx.reverb,
       seg: { k: 'type', options: [['room', 'Room'], ['hall', 'Hall'], ['spring', 'Spring']], v: 'hall' },
-      knobs: [{ k: 'decay', label: 'Decay', min: 0.3, max: 8, v: 2.5, scale: 'log', fmt: (v) => v.toFixed(1) + 's' }, { k: 'mix', label: 'Mix', min: 0, max: 1, v: 0.35, fmt: pct }] },
+      knobs: [{ k: 'decay', label: 'Decay', tip: 'How long the room rings.', min: 0.3, max: 8, v: 2.5, scale: 'log', fmt: (v) => v.toFixed(1) + 's' }, { k: 'mix', label: 'Mix', tip: 'Effect vs. dry signal.', min: 0, max: 1, v: 0.35, fmt: pct }] },
   };
   const STD = ['wah', 'comp', 'drive', 'chorus', 'phaser', 'trem', 'delay', 'reverb'];
 
@@ -42,7 +42,7 @@
     const controls = {};
     d.knobs.forEach((kd) => {
       fx.set(kd.k, kd.v);
-      controls[kd.k] = SD.knob({ label: kd.label, min: kd.min, max: kd.max, value: kd.v, scale: kd.scale, small: true, format: kd.fmt, onInput: (v) => fx.set(kd.k, v) });
+      controls[kd.k] = SD.knob({ label: kd.label, tip: kd.tip, min: kd.min, max: kd.max, value: kd.v, scale: kd.scale, small: true, format: kd.fmt, onInput: (v) => fx.set(kd.k, v) });
     });
     let seg = null;
     if (d.seg) {
@@ -96,13 +96,13 @@
 
   const PRESETS = [
     { id: 'dry', label: 'All off', on: {} },
-    { id: 'clean', label: 'Clean sparkle', src: 'chords', on: { comp: { threshold: -32, ratio: 4 }, chorus: { preset: 'chorus', depth: 0.55 }, reverb: { type: 'hall', decay: 2.4, mix: 0.3 } } },
-    { id: 'rock', label: 'Rock lead', src: 'lick', on: { drive: { mode: 'overdrive', drive: 0.7, tone: 0.55 }, delay: { time: 0.45, feedback: 0.35, mix: 0.3 }, reverb: { type: 'room', decay: 1.2, mix: 0.25 } } },
-    { id: 'grunge', label: 'Grunge', src: 'chug', on: { drive: { mode: 'distortion', drive: 0.75, tone: 0.5 }, chorus: { preset: 'chorus', rate: 0.6, depth: 0.75 } } },
-    { id: 'surf', label: 'Surf', src: 'lick', on: { trem: { rate: 6.5, depth: 0.6 }, reverb: { type: 'spring', decay: 2.5, mix: 0.45 } } },
-    { id: 'funk', label: 'Funk', src: 'chords', on: { wah: { sens: 0.6, res: 0.6 }, comp: { threshold: -36, ratio: 6 }, phaser: { rate: 0.5, depth: 0.6 } } },
-    { id: 'shoegaze', label: 'Shoegaze', src: 'chords', on: { drive: { mode: 'fuzz', drive: 0.55, tone: 0.4 }, chorus: { preset: 'flanger', rate: 0.15, depth: 0.8 }, delay: { time: 0.6, feedback: 0.6, mix: 0.4 }, reverb: { type: 'hall', decay: 7, mix: 0.6 } } },
-    { id: 'backwards', label: 'Backwards!', src: 'lick', order: ['reverb', 'delay', 'drive', 'wah', 'comp', 'chorus', 'phaser', 'trem'],
+    { id: 'clean', label: 'Clean sparkle', on: { comp: { threshold: -32, ratio: 4 }, chorus: { preset: 'chorus', depth: 0.55 }, reverb: { type: 'hall', decay: 2.4, mix: 0.3 } } },
+    { id: 'rock', label: 'Rock lead', on: { drive: { mode: 'overdrive', drive: 0.7, tone: 0.55 }, delay: { time: 0.45, feedback: 0.35, mix: 0.3 }, reverb: { type: 'room', decay: 1.2, mix: 0.25 } } },
+    { id: 'grunge', label: 'Grunge', on: { drive: { mode: 'distortion', drive: 0.75, tone: 0.5 }, chorus: { preset: 'chorus', rate: 0.6, depth: 0.75 } } },
+    { id: 'surf', label: 'Surf', on: { trem: { rate: 6.5, depth: 0.6 }, reverb: { type: 'spring', decay: 2.5, mix: 0.45 } } },
+    { id: 'funk', label: 'Funk', on: { wah: { sens: 0.6, res: 0.6 }, comp: { threshold: -36, ratio: 6 }, phaser: { rate: 0.5, depth: 0.6 } } },
+    { id: 'shoegaze', label: 'Shoegaze', on: { drive: { mode: 'fuzz', drive: 0.55, tone: 0.4 }, chorus: { preset: 'flanger', rate: 0.15, depth: 0.8 }, delay: { time: 0.6, feedback: 0.6, mix: 0.4 }, reverb: { type: 'hall', decay: 7, mix: 0.6 } } },
+    { id: 'backwards', label: 'Backwards!', order: ['reverb', 'delay', 'drive', 'wah', 'comp', 'chorus', 'phaser', 'trem'],
       on: { reverb: { type: 'hall', decay: 3, mix: 0.5 }, delay: { time: 0.375, feedback: 0.5, mix: 0.5 }, drive: { mode: 'distortion', drive: 0.8, tone: 0.5 } } },
   ];
   function applyPreset(pid) {
@@ -114,19 +114,15 @@
       if (cfg) Object.entries(cfg).forEach(([k, v]) => u.controls[k] && u.controls[k].set(v));
     });
     render(); wire();
-    if (pr.src && pr.src !== tr.source) {
-      tr.setSource(pr.src);
-      if (SD.player.isOwner(tr.owner)) tr.start();
-    }
   }
   const presetSeg = SD.segmented({ label: 'Board presets', options: PRESETS.map((p) => ({ value: p.id, label: p.label })), value: 'dry', onChange: applyPreset });
 
-  const tr = SD.transport({ label: 'Pedalboard', sources: ['chords', 'lick', 'chug', 'pluck', 'drums'], value: 'chords', dest: () => input });
+  const tr = SD.transport({ label: 'Pedalboard', sources: ['saw', 'blip', 'chords', 'lick', 'chug', 'drums'], value: 'saw', dest: () => input });
 
-  const scope = SD.canvas({ label: 'Output waveform', height: 120 });
-  const spec = SD.canvas({ label: 'Output spectrum', height: 120 });
+  const scope = SD.canvas({ label: 'Output waveform', height: 80 });
+  const spec = SD.canvas({ label: 'Output spectrum', height: 80 });
   const tbuf = new Float32Array(analyser.fftSize), fbuf = new Float32Array(analyser.frequencyBinCount);
-  const ACC = '#d1495b';
+  const ACC = SD.accentOf('board');
   let scopeGain = 0.2;
   SD.onFrame(() => {
     const playing = SD.player.isOwner(tr.owner);

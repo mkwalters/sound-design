@@ -238,15 +238,46 @@
     }, { lp: 12000, peak: 0.8 });
   }
 
+  // ---------- synth tones (clearer than guitar for hearing exactly what an effect does) ----------
+  function tone(d, t0, f, vel, tau, len, harm = 7) {
+    const st = Math.floor(t0 * sr), n = Math.floor(len * sr);
+    for (let i = 0; i < n && st + i < d.length; i++) {
+      const t = i / sr;
+      const env = (1 - Math.exp(-t / 0.004)) * Math.exp(-t / tau);
+      let s = 0;
+      for (let k = 1; k <= harm; k++) s += Math.sin(2 * Math.PI * k * f * t) / k;
+      d[st + i] += vel * env * s;
+    }
+  }
+  function buildBlip() {
+    return makeBuffer(2.0, (d) => tone(d, 0.02, 330, 1, 0.09, 0.6), { lp: false, peak: 0.6 });
+  }
+  function buildPulses() {
+    const vels = [1, 0.18, 0.55, 0.12, 0.9, 0.3, 0.7, 0.1];
+    return makeBuffer(3.2, (d) => vels.forEach((v, i) => tone(d, i * 0.4 + 0.01, 220, v, 0.16, 0.39)), { lp: false, peak: 0.65 });
+  }
+  const oscSource = (type, freq, level, lp) => (dest) => {
+    const o = ctx.createOscillator(); o.type = type; o.frequency.value = freq;
+    const g = ctx.createGain(); g.gain.value = level;
+    if (lp) { const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = lp; f.Q.value = 0.5; o.connect(f).connect(g); }
+    else o.connect(g);
+    g.connect(dest); o.start();
+    return () => { try { o.stop(ctx.currentTime + 0.15); } catch (e) {} };
+  };
+
   // ---------- source registry ----------
   const cache = {};
   const sourceListeners = new Set();
   let userBuffer = null, userName = '';
   SD.sources = {
-    chords: { label: 'Strummed chords', build: buildChords },
+    sine: { label: 'Pure tone', synth: true, node: oscSource('sine', 220, 0.17) },
+    saw: { label: 'Buzzy tone', synth: true, node: oscSource('sawtooth', 110, 0.24, 4500) },
+    blip: { label: 'Blip', synth: true, build: buildBlip },
+    pulses: { label: 'Loud & soft', synth: true, build: buildPulses },
+    chords: { label: 'Guitar chords', build: buildChords },
     lick: { label: 'Lead lick', build: buildLick },
-    chug: { label: 'Palm‑muted riff', build: buildChug },
-    pluck: { label: 'Single note', build: buildPluck },
+    chug: { label: 'Chunky riff', build: buildChug },
+    pluck: { label: 'Guitar note', build: buildPluck },
     drums: { label: 'Drum loop', build: buildDrums },
     user: { label: 'Your audio', extra: true, available: () => !!userBuffer, build: () => userBuffer },
     live: { label: '🎸 Live input', extra: true, live: true, available: () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) },
@@ -265,7 +296,7 @@
     sourceListeners.forEach((fn) => fn());
   };
   // Warm the cache in idle time so the first click is instant.
-  const warm = ['chords', 'lick', 'pluck', 'chug', 'drums'];
+  const warm = ['blip', 'pulses', 'chords', 'lick', 'pluck', 'chug', 'drums'];
   const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 200));
   (function next() { const id = warm.shift(); if (!id) return; idle(() => { SD.getBuffer(id); next(); }); })();
 
@@ -298,6 +329,8 @@
       try {
         if (typeof src === 'function') {
           stopper = src(fade);
+        } else if (SD.sources[src] && SD.sources[src].node) {
+          stopper = SD.sources[src].node(fade);
         } else if (src === 'live') {
           const node = await liveNode();
           if (!this.current || this.current.token !== token) { node.disconnect(); return; }

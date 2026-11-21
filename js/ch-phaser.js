@@ -5,10 +5,10 @@
   const fx = SD.fx.phaser();
   fx.outputNode.connect(SD.master);
 
-  const kRate = SD.knob({ label: 'Rate', min: 0.05, max: 5, value: 0.4, scale: 'log', format: (v) => v.toFixed(2) + ' Hz', onInput: (v) => fx.set('rate', v) });
-  const kDepth = SD.knob({ label: 'Depth', min: 0, max: 1, value: 0.75, format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('depth', v) });
-  const kRes = SD.knob({ label: 'Resonance', min: 0, max: 1, value: 0.25, format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('res', v) });
-  const stages = SD.segmented({ label: 'Stages', options: [2, 4, 6, 8].map((n) => ({ value: n, label: String(n) })), value: 4, onChange: (v) => fx.set('stages', v) });
+  const kRate = SD.knob({ label: 'Rate', tip: 'Speed of the sweep.', min: 0.05, max: 5, value: 0.4, scale: 'log', format: (v) => v.toFixed(2) + ' Hz', onInput: (v) => fx.set('rate', v) });
+  const kDepth = SD.knob({ label: 'Depth', tip: 'How far the notches travel.', min: 0, max: 1, value: 0.75, format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('depth', v) });
+  const kRes = SD.knob({ label: 'Resonance', tip: 'Sharper, deeper, more liquid notches.', min: 0, max: 1, value: 0.25, format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('res', v) });
+  const stages = SD.segmented({ label: 'Stages', options: [2, 4, 6, 8].map((n) => ({ value: n, label: String(n), tip: `${n} filter stages → ${n / 2} notch${n > 2 ? 'es' : ''}.` })), value: 4, onChange: (v) => fx.set('stages', v) });
 
   const pedal = SD.pedal({ name: 'Swoosh', sub: 'phase shifter', fx, knobs: [kRate, kDepth, kRes],
     middle: h('div', { class: 'ctl-group' }, h('span', { class: 'ctl-label' }, 'stages'), stages.el) });
@@ -42,5 +42,5 @@
   };
   SD.onFrame(() => resp.draw(), document.getElementById('bench-phaser'));
 
-  SD.bench('phaser', { label: 'Swoosh phaser', sources: ['chords', 'lick', 'chug', 'drums'], source: 'chords', dest: () => fx.inputNode, pedal, graphs: [resp] });
+  SD.bench('phaser', { label: 'Swoosh phaser', sources: ['saw', 'chords', 'lick', 'drums'], source: 'saw', dest: () => fx.inputNode, pedal, graphs: [resp] });
 })();

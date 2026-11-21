@@ -32,6 +32,52 @@
     toastT = setTimeout(() => toastEl.classList.remove('show'), 2600);
   };
 
+  // ---------- tooltips: any element with data-tip (and optional data-tip-title) ----------
+  const tipEl = h('div', { class: 'tip', role: 'tooltip', 'aria-hidden': 'true' });
+  document.body.append(tipEl);
+  let tipTarget = null, tipTimer = 0;
+  function placeTip() {
+    if (!tipTarget) return;
+    const r = tipTarget.getBoundingClientRect();
+    const tw = tipEl.offsetWidth, th = tipEl.offsetHeight;
+    const x = SD.clamp(r.left + r.width / 2 - tw / 2, 8, innerWidth - tw - 8);
+    let y = r.top - th - 10, below = false;
+    if (y < 8) { y = r.bottom + 10; below = true; }
+    tipEl.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+    tipEl.classList.toggle('below', below);
+    tipEl.style.setProperty('--ax', r.left + r.width / 2 - x + 'px');
+  }
+  function showTip(el) {
+    const text = el.dataset.tip;
+    if (!text) return;
+    tipTarget = el;
+    tipEl.innerHTML = '';
+    if (el.dataset.tipTitle) tipEl.append(h('b', null, el.dataset.tipTitle));
+    tipEl.append(text);
+    tipEl.classList.add('show');
+    placeTip();
+  }
+  function hideTip() { tipEl.classList.remove('show'); tipTarget = null; }
+  SD.hideTip = hideTip;
+  document.addEventListener('pointerover', (e) => {
+    if (e.pointerType === 'touch') return;
+    const t = e.target.closest('[data-tip]');
+    if (t && t !== tipTarget) showTip(t);
+    else if (!t && tipTarget && !tipTarget.classList.contains('dragging')) hideTip();
+  });
+  document.addEventListener('pointerdown', (e) => {
+    if (e.pointerType !== 'touch') return;
+    const t = e.target.closest('[data-tip]');
+    if (!t) return;
+    showTip(t);
+    clearTimeout(tipTimer);
+    tipTimer = setTimeout(hideTip, 2400);
+  });
+  document.addEventListener('focusin', (e) => { const t = e.target.closest('[data-tip]'); if (t && e.target.matches(':focus-visible')) showTip(t); });
+  document.addEventListener('focusout', (e) => { if (e.target === tipTarget || (tipTarget && tipTarget.contains(e.target))) hideTip(); });
+  addEventListener('scroll', hideTip, { passive: true });
+  SD.placeTip = placeTip;
+
   // ---------- drag + keyboard behaviour shared by knobs and the wah treadle ----------
   function dragControl(target, getN, setN, opts = {}) {
     target.addEventListener('pointerdown', (e) => {
@@ -46,7 +92,11 @@
         const d = opts.vertical ? sy - ev.clientY : ev.clientX - sx + (sy - ev.clientY);
         setN(sn + d / sens);
       };
-      const up = () => {
+      const up = (ev) => {
+        if (tipTarget === target || (tipTarget && target.contains(tipTarget))) {
+          const r = target.getBoundingClientRect();
+          if (ev.clientX < r.left || ev.clientX > r.right || ev.clientY < r.top || ev.clientY > r.bottom) hideTip();
+        }
         target.removeEventListener('pointermove', move);
         target.removeEventListener('pointerup', up);
         target.removeEventListener('pointercancel', up);
@@ -83,9 +133,10 @@
     };
     let n = SD.clamp(toN(o.value), 0, 1), value = o.value;
     const def = o.value;
-    const dial = h('div', { class: 'knob-dial', role: 'slider', tabindex: 0, 'aria-label': o.label, title: 'Drag up/down · double‑click to reset' });
+    const dial = h('div', { class: 'knob-dial', role: 'slider', tabindex: 0, 'aria-label': o.label + (o.tip ? '. ' + o.tip : '') });
     const read = h('div', { class: 'knob-value' });
-    const el = h('div', { class: 'knob' + (o.small ? ' small' : '') }, dial, h('div', { class: 'knob-label' }, o.label), read);
+    const el = h('div', { class: 'knob' + (o.small ? ' small' : ''), 'data-tip': o.tip || null, 'data-tip-title': o.tip ? o.label : null },
+      dial, h('div', { class: 'knob-label' }, o.label), read);
     const fmt = o.format || ((v) => String(Math.round(v * 100) / 100));
     function render() {
       dial.style.setProperty('--angle', -135 + 270 * n + 'deg');
@@ -117,7 +168,7 @@
     const el = h('div', { class: 'seg' + (o.small ? ' small' : ''), role: 'radiogroup', 'aria-label': o.label || null });
     let val;
     const btns = o.options.map((op) => {
-      const b = h('button', { type: 'button', class: 'seg-btn', role: 'radio' }, op.label);
+      const b = h('button', { type: 'button', class: 'seg-btn', role: 'radio', 'data-tip': op.tip || null, 'data-tip-title': op.tip ? op.label : null }, op.label);
       b.addEventListener('click', () => set(op.value));
       el.append(b);
       return [op.value, b];
@@ -134,7 +185,8 @@
   // ---------- pedal enclosure ----------
   SD.pedal = function (o) {
     const led = h('span', { class: 'led', 'aria-hidden': 'true' });
-    const fs = h('button', { class: 'footswitch', type: 'button', 'aria-pressed': 'true', 'aria-label': `${o.name}: on/off`, title: 'Stomp to switch the effect on and off' });
+    const fs = h('button', { class: 'footswitch', type: 'button', 'aria-pressed': 'true', 'aria-label': `${o.name}: on/off`,
+      'data-tip': 'Stomp to switch the effect off and on. Compare!', 'data-tip-title': 'Footswitch' });
     const screws = ['s1', 's2', 's3', 's4'].map((s) => h('span', { class: 'screw ' + s, 'aria-hidden': 'true' }));
     const el = h('div', { class: 'pedal on' + (o.compact ? ' compact' : '') + (o.cls ? ' ' + o.cls : ''), style: o.color ? { '--c': o.color } : null },
       screws,
@@ -210,9 +262,13 @@
     function renderChips() {
       chips.innerHTML = '';
       const ids = o.sources.concat(o.noExtras ? [] : Object.keys(SD.sources).filter((k) => SD.sources[k].extra));
+      let prevSynth = null;
       ids.forEach((id) => {
         const def = SD.sources[id];
         if (!def || (def.available && !def.available())) return;
+        const isSynth = !!def.synth;
+        if (prevSynth !== null && prevSynth !== isSynth) chips.append(h('span', { class: 'chip-sep', 'aria-hidden': 'true' }));
+        prevSynth = isSynth;
         const b = h('button', { type: 'button', class: 'chip' + (id === src ? ' active' : '') + (def.live ? ' live' : ''), 'aria-pressed': String(id === src) }, def.label);
         b.addEventListener('click', () => {
           src = id;

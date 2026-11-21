@@ -4,22 +4,22 @@
   const box = document.getElementById('quiz-box');
 
   const BANK = [
-    { id: 'drive', label: 'Distortion / fuzz', color: '#ee7b30', src: 'chug', make: () => { const f = SD.fx.drive(); f.setMany({ mode: 'fuzz', drive: 0.7 }); return f; },
-      why: 'The wave is being clipped: buzzy, gritty, compressed, with extra harmonics.' },
-    { id: 'wah', label: 'Wah', color: '#8e5fc0', src: 'chords', make: () => { const f = SD.fx.filter(); f.setMany({ auto: 'lfo', rate: 1.6, res: 0.6 }); return f; },
-      why: 'A resonant peak sweeps up and down, so it sounds like a voice going “wah‑wah”.' },
-    { id: 'trem', label: 'Tremolo', color: '#e2a72e', src: 'chords', make: () => { const f = SD.fx.trem(); f.setMany({ rate: 6, depth: 0.85 }); return f; },
-      why: 'The volume pulses up and down. The pitch never changes.' },
-    { id: 'chorus', label: 'Chorus', color: '#2bb3a3', src: 'lick', make: () => { const f = SD.fx.chorus(); f.setMany({ rate: 1.0, depth: 0.7, delay: 20, feedback: 0, mix: 0.5 }); return f; },
-      why: 'A shimmery, slightly detuned “two guitars” sound, with no obvious sweep.' },
-    { id: 'flanger', label: 'Flanger', color: '#1d8a7e', src: 'chords', make: () => { const f = SD.fx.chorus(); f.setMany({ rate: 0.2, depth: 0.9, delay: 2.8, feedback: 0.8, mix: 0.5 }); return f; },
-      why: 'A metallic, jet‑plane whoosh: a comb filter sliding up and down.' },
-    { id: 'phaser', label: 'Phaser', color: '#e85d8e', src: 'chords', make: () => { const f = SD.fx.phaser(); f.setMany({ rate: 0.5, depth: 0.85, stages: 6, res: 0.4 }); return f; },
-      why: 'A smooth, vocal swirl from a few sweeping notches. Softer and less metallic than a flanger.' },
-    { id: 'delay', label: 'Delay', color: '#4c9a5a', src: 'pluck', make: () => { const f = SD.fx.delay(); f.setMany({ time: 0.42, feedback: 0.5, mix: 0.55, tone: 0.6 }); return f; },
-      why: 'You can hear distinct, separate repeats of each note.' },
-    { id: 'reverb', label: 'Reverb', color: '#4a5bd4', src: 'pluck', make: () => { const f = SD.fx.reverb(); f.setMany({ type: 'hall', decay: 4, mix: 0.55 }); return f; },
-      why: 'A smooth wash where no single echo stands out. It sounds like a big room.' },
+    { id: 'drive', label: 'Distortion / fuzz', color: 'var(--c-drive)', src: 'sine', make: () => { const f = SD.fx.drive(); f.setMany({ mode: 'fuzz', drive: 0.7 }); return f; },
+      why: 'Clipped and buzzy. The peaks are flattened.' },
+    { id: 'wah', label: 'Wah', color: 'var(--c-filter)', src: 'saw', make: () => { const f = SD.fx.filter(); f.setMany({ auto: 'lfo', rate: 1.6, res: 0.6 }); return f; },
+      why: 'A peak sweeping up and down: “wah‑wah”.' },
+    { id: 'trem', label: 'Tremolo', color: 'var(--c-trem)', src: 'sine', make: () => { const f = SD.fx.trem(); f.setMany({ rate: 6, depth: 0.85 }); return f; },
+      why: 'Volume pulses. Pitch stays put.' },
+    { id: 'chorus', label: 'Chorus', color: 'var(--c-chorus)', src: 'saw', make: () => { const f = SD.fx.chorus(); f.setMany({ rate: 1.0, depth: 0.7, delay: 20, feedback: 0, mix: 0.5 }); return f; },
+      why: 'Gentle shimmer, like two players slightly out of tune.' },
+    { id: 'flanger', label: 'Flanger', color: 'var(--c-chorus)', src: 'saw', make: () => { const f = SD.fx.chorus(); f.setMany({ rate: 0.2, depth: 0.9, delay: 2.8, feedback: 0.8, mix: 0.5 }); return f; },
+      why: 'A metallic jet whoosh from a sliding comb.' },
+    { id: 'phaser', label: 'Phaser', color: 'var(--c-phaser)', src: 'saw', make: () => { const f = SD.fx.phaser(); f.setMany({ rate: 0.5, depth: 0.85, stages: 6, res: 0.4 }); return f; },
+      why: 'A soft swirl from a few sweeping notches.' },
+    { id: 'delay', label: 'Delay', color: 'var(--c-delay)', src: 'blip', make: () => { const f = SD.fx.delay(); f.setMany({ time: 0.42, feedback: 0.5, mix: 0.55, tone: 0.6 }); return f; },
+      why: 'Separate, distinct repeats.' },
+    { id: 'reverb', label: 'Reverb', color: 'var(--c-reverb)', src: 'blip', make: () => { const f = SD.fx.reverb(); f.setMany({ type: 'hall', decay: 4, mix: 0.55 }); return f; },
+      why: 'A smooth wash with no single echo: a big room.' },
   ];
   const ROUNDS = 6;
   const insts = {};
@@ -82,10 +82,10 @@
 
   function renderFinal() {
     const score = results.filter(Boolean).length;
-    const msg = score === ROUNDS ? 'Perfect ears. You could run a guitar shop.'
-      : score >= 4 ? 'Great listening! You clearly know your pedals.'
-      : score >= 2 ? 'Not bad! Modulation pedals fool everyone at first. Try again.'
-      : 'Tricky, right? Scroll up, stomp a few pedals on and off, then have another go.';
+    const msg = score === ROUNDS ? 'Perfect ears!'
+      : score >= 4 ? 'Great listening!'
+      : score >= 2 ? 'Not bad. Modulation pedals fool everyone at first.'
+      : 'Tricky! Revisit a few pedals and try again.';
     const again = h('button', { type: 'button', class: 'btn' }, 'Play again');
     again.addEventListener('click', start);
     box.innerHTML = '';

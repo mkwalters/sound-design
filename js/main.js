@@ -1,4 +1,4 @@
-/* Page chrome: chapter rail, scroll progress, dock, audio unlock. */
+/* Page chrome: one chapter per page, Next/Back pager, thin progress bar, dock. */
 (function () {
   const { h, ctx } = SD;
 
@@ -6,46 +6,76 @@
   const unlock = () => { if (ctx.state !== 'running') ctx.resume(); };
   ['pointerdown', 'keydown', 'touchend'].forEach((ev) => window.addEventListener(ev, unlock, { once: true, capture: true }));
 
-  // ---- chapter rail ----
-  const sections = [...document.querySelectorAll('.chapter')];
-  const rail = document.getElementById('rail');
-  const ol = h('ol');
-  const links = sections.map((s) => {
-    const c = getComputedStyle(s).getPropertyValue('--accent').trim();
-    const a = h('a', { href: '#' + s.id, style: { '--c': c } }, h('span', { class: 'jack' }), h('span', { class: 'rail-label' }, s.dataset.title));
-    ol.append(h('li', null, a));
-    return a;
-  });
-  rail.append(ol);
-  const visible = new Map();
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach((e) => visible.set(e.target.id, e.intersectionRatio));
-    let best = null, bestR = 0;
-    sections.forEach((s) => { const r = visible.get(s.id) || 0; if (r > bestR) { bestR = r; best = s.id; } });
-    const bi = sections.findIndex((s) => s.id === best);
-    links.forEach((a, i) => { a.classList.toggle('active', i === bi); a.classList.toggle('done', bi >= 0 && i < bi); });
-  }, { threshold: [0, 0.1, 0.25, 0.5, 0.75, 1] });
-  sections.forEach((s) => io.observe(s));
+  // ---- pages ----
+  const pages = [...document.querySelectorAll('.page')];
+  const ids = pages.map((p) => p.id);
+  const accent = (p) => getComputedStyle(p).getPropertyValue('--accent').trim() || getComputedStyle(document.documentElement).getPropertyValue('--c-intro').trim();
+  let cur = -1;
 
-  // ---- progress bar ----
-  const bar = document.getElementById('progress');
-  const onScroll = () => {
-    const max = document.documentElement.scrollHeight - innerHeight;
-    bar.style.width = (max > 0 ? (scrollY / max) * 100 : 0) + '%';
-  };
-  addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+  // progress: one thin segment per page
+  const prog = document.getElementById('progress');
+  const segs = pages.map((p, i) => {
+    const b = h('button', { type: 'button', 'aria-label': `Go to ${p.dataset.title}`, 'data-tip': p.dataset.title, style: { '--seg': accent(p) } });
+    b.addEventListener('click', () => go(i));
+    prog.append(b);
+    return b;
+  });
+
+  const back = document.getElementById('pg-back');
+  const next = document.getElementById('pg-next');
+  back.addEventListener('click', () => go(cur - 1));
+  next.addEventListener('click', () => go(cur === pages.length - 1 ? 0 : cur + 1));
+
+  function go(i, fromHash) {
+    i = SD.clamp(i, 0, pages.length - 1);
+    if (i === cur) return;
+    SD.player.stop();
+    SD.hideTip && SD.hideTip();
+    if (cur >= 0) pages[cur].classList.remove('active');
+    cur = i;
+    pages[i].classList.add('active');
+    window.scrollTo(0, 0);
+    segs.forEach((s, k) => { s.classList.toggle('done', k < i); s.classList.toggle('cur', k === i); s.setAttribute('aria-current', k === i ? 'step' : 'false'); });
+    back.classList.toggle('hidden', i === 0);
+    next.innerHTML = '';
+    if (i === 0) next.append('Start →');
+    else if (i === pages.length - 1) next.append('Start over ↺');
+    else next.append(h('span', { class: 'nx' }, 'Next:'), pages[i + 1].dataset.title + ' →');
+    document.title = (i ? pages[i].dataset.title + ' · ' : '') + 'Stompbox School';
+    if (!fromHash && location.hash.slice(1) !== ids[i]) history.pushState(null, '', '#' + ids[i]);
+  }
+  const fromLocation = () => { const k = ids.indexOf(location.hash.slice(1)); go(k < 0 ? 0 : k, true); };
+  addEventListener('popstate', fromLocation);
+  addEventListener('hashchange', fromLocation);
+  // in-page links like href="#drive" navigate between pages
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const k = ids.indexOf(a.getAttribute('href').slice(1));
+    if (k >= 0) { e.preventDefault(); go(k); }
+  });
+  fromLocation();
+
+  // keyboard: ← / → change pages (unless a knob or input has focus)
+  addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { SD.player.stop(); return; }
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    const t = e.target;
+    if (t.closest && t.closest('[role="slider"], input, textarea, select, [role="radiogroup"]')) return;
+    if (e.key === 'ArrowRight') { go(cur + 1); e.preventDefault(); }
+    if (e.key === 'ArrowLeft') { go(cur - 1); e.preventDefault(); }
+  });
 
   // ---- dock ----
   const dock = document.getElementById('dock');
   const text = document.getElementById('dock-text');
   const stop = document.getElementById('dock-stop');
-  const update = (cur) => {
-    dock.classList.toggle('playing', !!cur);
-    stop.disabled = !cur;
-    if (!cur) { text.textContent = 'Nothing playing'; return; }
-    const srcName = typeof cur.src === 'string' && SD.sources[cur.src] ? SD.sources[cur.src].label + ' → ' : '';
-    text.textContent = srcName + cur.owner.label;
+  const update = (c) => {
+    dock.classList.toggle('playing', !!c);
+    stop.disabled = !c;
+    if (!c) { text.textContent = 'Nothing playing'; return; }
+    const srcName = typeof c.src === 'string' && SD.sources[c.src] ? SD.sources[c.src].label + ' → ' : '';
+    text.textContent = srcName + c.owner.label;
   };
   SD.player.on(update);
   update(null);
@@ -56,11 +86,10 @@
     if (!f) return;
     try {
       await SD.loadUserFile(f);
-      SD.toast('Loaded! Pick “' + SD.sources.user.label + '” as a source on any pedal.');
+      SD.toast('Loaded! Pick “' + SD.sources.user.label + '” on any pedal.');
     } catch (err) {
       SD.toast('Sorry, that file could not be decoded.');
     }
     e.target.value = '';
   });
-  addEventListener('keydown', (e) => { if (e.key === 'Escape') SD.player.stop(); });
 })();

@@ -12,18 +12,21 @@
     dotted: { time: 0.45, feedback: 0.45, mix: 0.45, tone: 0.65 },
     ambient: { time: 0.72, feedback: 0.78, mix: 0.5, tone: 0.25 },
   };
-  const kTime = SD.knob({ label: 'Time', min: 0.02, max: 1.5, value: 0.375, scale: 'log', format: (v) => Math.round(v * 1000) + ' ms', onInput: (v) => { fx.set('time', v); ir.draw(); } });
-  const kFb = SD.knob({ label: 'Feedback', min: 0, max: 0.95, value: 0.4, format: (v) => Math.round(v * 100) + '%', onInput: (v) => { fx.set('feedback', v); ir.draw(); } });
-  const kMix = SD.knob({ label: 'Mix', min: 0, max: 1, value: 0.45, format: (v) => Math.round(v * 100) + '%', onInput: (v) => { fx.set('mix', v); ir.draw(); } });
-  const kTone = SD.knob({ label: 'Tone', min: 0, max: 1, value: 0.6, format: (v) => (v < 0.35 ? 'tape ' : v > 0.75 ? 'digital ' : '') + Math.round(v * 100) + '%', onInput: (v) => { fx.set('tone', v); ir.draw(); } });
+  const kTime = SD.knob({ label: 'Time', tip: 'The gap between repeats.', min: 0.02, max: 1.5, value: 0.375, scale: 'log', format: (v) => Math.round(v * 1000) + ' ms', onInput: (v) => { fx.set('time', v); ir.draw(); } });
+  const kFb = SD.knob({ label: 'Feedback', tip: 'How many repeats. High = they go on and on.', min: 0, max: 0.95, value: 0.4, format: (v) => Math.round(v * 100) + '%', onInput: (v) => { fx.set('feedback', v); ir.draw(); } });
+  const kMix = SD.knob({ label: 'Mix', tip: 'Echo volume vs. your playing.', min: 0, max: 1, value: 0.45, format: (v) => Math.round(v * 100) + '%', onInput: (v) => { fx.set('mix', v); ir.draw(); } });
+  const kTone = SD.knob({ label: 'Tone', tip: 'Darker repeats = vintage tape. Brighter = clean digital.', min: 0, max: 1, value: 0.6, format: (v) => (v < 0.35 ? 'tape ' : v > 0.75 ? 'digital ' : '') + Math.round(v * 100) + '%', onInput: (v) => { fx.set('tone', v); ir.draw(); } });
   const knobs = { time: kTime, feedback: kFb, mix: kMix, tone: kTone };
   const preset = SD.segmented({ label: 'Preset', options: [
-    { value: 'doubling', label: 'Doubling' }, { value: 'slapback', label: 'Slapback' }, { value: 'echo', label: 'Echo' },
-    { value: 'dotted', label: 'Dotted 8th' }, { value: 'ambient', label: 'Ambient' },
+    { value: 'doubling', label: 'Doubling', tip: 'Too fast to hear as an echo. Just sounds thicker.' },
+    { value: 'slapback', label: 'Slapback', tip: 'One quick bounce. 50s rockabilly.' },
+    { value: 'echo', label: 'Echo', tip: 'Distinct repeats that fade away.' },
+    { value: 'dotted', label: 'Dotted 8th', tip: 'Repeats land between the beats: cascading, U2‑style.' },
+    { value: 'ambient', label: 'Ambient', tip: 'Long, dark, endless wash.' },
   ], value: null, onChange: (v) => Object.entries(PRESETS[v]).forEach(([k, val]) => knobs[k].set(val)) });
 
   // tap tempo
-  const tap = h('button', { type: 'button', class: 'footswitch tap', 'aria-label': 'Tap tempo' });
+  const tap = h('button', { type: 'button', class: 'footswitch tap', 'aria-label': 'Tap tempo', 'data-tip': 'Tap twice or more in rhythm to set the delay time.', 'data-tip-title': 'Tap tempo' });
   let taps = [];
   tap.addEventListener('click', () => {
     const t = performance.now() / 1000;
@@ -76,5 +79,5 @@
     }
   };
 
-  const bench = SD.bench('delay', { label: 'Canyon Echo delay', sources: ['pluck', 'lick', 'chords', 'drums'], source: 'pluck', dest: () => fx.inputNode, pedal, graphs: [ir], headExtra: preset.el });
+  const bench = SD.bench('delay', { label: 'Canyon Echo delay', sources: ['blip', 'pluck', 'lick', 'drums'], source: 'blip', dest: () => fx.inputNode, pedal, graphs: [ir], headExtra: preset.el });
 })();

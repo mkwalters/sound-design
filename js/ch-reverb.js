@@ -11,12 +11,12 @@
     plate: { decay: 1.8, damping: 0.1, predelay: 0.0, mix: 0.35 },
     spring: { decay: 2.2, damping: 0.5, predelay: 0.0, mix: 0.42 },
   };
-  const kDecay = SD.knob({ label: 'Decay', min: 0.3, max: 8, value: 2.6, scale: 'log', format: (v) => v.toFixed(1) + ' s', onInput: (v) => fx.set('decay', v) });
-  const kPre = SD.knob({ label: 'Pre‑delay', min: 0, max: 0.2, value: 0.02, format: (v) => Math.round(v * 1000) + ' ms', onInput: (v) => { fx.set('predelay', v); irC.draw(); } });
-  const kDamp = SD.knob({ label: 'Damping', min: 0, max: 1, value: 0.4, format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('damping', v) });
-  const kMix = SD.knob({ label: 'Mix', min: 0, max: 1, value: 0.35, format: (v) => Math.round(v * 100) + '%', onInput: (v) => { fx.set('mix', v); irC.draw(); } });
+  const kDecay = SD.knob({ label: 'Decay', tip: 'How long the room rings.', min: 0.3, max: 8, value: 2.6, scale: 'log', format: (v) => v.toFixed(1) + ' s', onInput: (v) => fx.set('decay', v) });
+  const kPre = SD.knob({ label: 'Pre‑delay', tip: 'Pause before the room answers. Keeps notes clear.', min: 0, max: 0.2, value: 0.02, format: (v) => Math.round(v * 1000) + ' ms', onInput: (v) => { fx.set('predelay', v); irC.draw(); } });
+  const kDamp = SD.knob({ label: 'Damping', tip: 'Soft walls soak up the treble. More = darker.', min: 0, max: 1, value: 0.4, format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('damping', v) });
+  const kMix = SD.knob({ label: 'Mix', tip: 'Dry you vs. the room.', min: 0, max: 1, value: 0.35, format: (v) => Math.round(v * 100) + '%', onInput: (v) => { fx.set('mix', v); irC.draw(); } });
   const knobs = { decay: kDecay, predelay: kPre, damping: kDamp, mix: kMix };
-  const type = SD.segmented({ label: 'Reverb type', options: [{ value: 'room', label: 'Room' }, { value: 'hall', label: 'Hall' }, { value: 'plate', label: 'Plate' }, { value: 'spring', label: 'Spring' }],
+  const type = SD.segmented({ label: 'Reverb type', options: [{ value: 'room', label: 'Room', tip: 'Small, natural space.' }, { value: 'hall', label: 'Hall', tip: 'Big, lush concert hall.' }, { value: 'plate', label: 'Plate', tip: 'A vibrating steel sheet: bright and smooth.' }, { value: 'spring', label: 'Spring', tip: 'A shaken metal spring: drippy surf boing.' }],
     value: 'hall', onChange: (v) => { fx.set('type', v); Object.entries(TYPES[v]).forEach(([k, val]) => knobs[k].set(val)); } });
 
   const pedal = SD.pedal({ name: 'Big Room', sub: 'reverb', fx, top: type.el, knobs: Object.values(knobs), onToggle: () => irC.draw() });
@@ -70,5 +70,5 @@
     }
   };
 
-  SD.bench('reverb', { label: 'Big Room reverb', sources: ['pluck', 'lick', 'chords', 'drums'], source: 'pluck', dest: () => fx.inputNode, pedal, graphs: [irC] });
+  SD.bench('reverb', { label: 'Big Room reverb', sources: ['blip', 'pluck', 'lick', 'drums'], source: 'blip', dest: () => fx.inputNode, pedal, graphs: [irC] });
 })();

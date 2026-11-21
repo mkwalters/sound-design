@@ -5,12 +5,12 @@
   const fx = SD.fx.trem();
   fx.outputNode.connect(SD.master);
 
-  const mode = SD.segmented({ label: 'Mode', options: [{ value: 'tremolo', label: 'Tremolo · volume' }, { value: 'vibrato', label: 'Vibrato · pitch' }],
+  const mode = SD.segmented({ label: 'Mode', options: [{ value: 'tremolo', label: 'Tremolo · volume', tip: 'The LFO turns the volume knob.' }, { value: 'vibrato', label: 'Vibrato · pitch', tip: 'The LFO bends the pitch up and down.' }],
     value: 'tremolo', onChange: (v) => fx.set('mode', v) });
-  const shape = SD.segmented({ small: true, label: 'LFO shape', options: [{ value: 'sine', label: '∿ sine' }, { value: 'triangle', label: '⋀ tri' }, { value: 'square', label: '⊓ square' }],
+  const shape = SD.segmented({ small: true, label: 'LFO shape', options: [{ value: 'sine', label: '∿ sine', tip: 'Smooth, gentle swell.' }, { value: 'triangle', label: '⋀ tri', tip: 'Even, steady ramps.' }, { value: 'square', label: '⊓ square', tip: 'On/off chop: a stutter.' }],
     value: 'sine', onChange: (v) => fx.set('shape', v) });
-  const kRate = SD.knob({ label: 'Rate', min: 0.5, max: 12, value: 5, scale: 'log', format: (v) => v.toFixed(1) + ' Hz', onInput: (v) => fx.set('rate', v) });
-  const kDepth = SD.knob({ label: 'Depth', min: 0, max: 1, value: 0.7, format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('depth', v) });
+  const kRate = SD.knob({ label: 'Rate', tip: 'Speed of the wobble, in wobbles per second.', min: 0.5, max: 12, value: 5, scale: 'log', format: (v) => v.toFixed(1) + ' Hz', onInput: (v) => fx.set('rate', v) });
+  const kDepth = SD.knob({ label: 'Depth', tip: 'How far it wobbles. 100% = full on/off chop.', min: 0, max: 1, value: 0.7, format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('depth', v) });
 
   const pedal = SD.pedal({ name: 'Wobble Lamp', sub: 'tremolo · vibrato', fx, top: mode.el, knobs: [kRate, kDepth],
     middle: h('div', { class: 'ctl-group' }, h('span', { class: 'ctl-label' }, 'lfo shape'), shape.el) });
@@ -65,5 +65,5 @@
   };
   SD.onFrame(() => { lfoC.draw(); sig.draw(); }, document.getElementById('bench-trem'));
 
-  SD.bench('trem', { label: 'Wobble Lamp tremolo', sources: ['chords', 'lick', 'pluck'], source: 'chords', dest: () => fx.inputNode, pedal, graphs: [lfoC, sig] });
+  SD.bench('trem', { label: 'Wobble Lamp tremolo', sources: ['sine', 'saw', 'chords', 'lick'], source: 'sine', dest: () => fx.inputNode, pedal, graphs: [lfoC, sig] });
 })();

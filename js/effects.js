@@ -78,7 +78,7 @@
     const shaper = ctx.createWaveShaper(); shaper.oversample = '4x';
     const dc = BQ('highpass', 25, 0.7), tone = BQ('lowpass', 4000, 0.6), level = G(0.6);
     input.connect(hp).connect(mid).connect(shaper).connect(dc).connect(tone).connect(level);
-    const fx = { input, output: level, params: { mode: 'overdrive', drive: 0.35, tone: 0.55, level: 0.7 } };
+    const fx = { input, output: level, params: { mode: 'overdrive', drive: 0.6, tone: 0.55, level: 0.7 } };
     fx.apply = (k) => {
       const p = fx.params;
       if (k === 'mode' || k === 'drive') {
@@ -91,7 +91,7 @@
       if (k === 'tone') smooth(tone.frequency, 500 * Math.pow(12000 / 500, p.tone));
       if (k === 'level') {
         const comp = 1 / (1 + p.drive * (p.mode === 'fuzz' ? 2 : p.mode === 'distortion' ? 1.6 : 1.1));
-        smooth(level.gain, p.level * 0.72 * comp);
+        smooth(level.gain, p.level * 0.5 * comp);
       }
     };
     return finish(fx, ['mode', 'tone']);
@@ -147,7 +147,7 @@
           f.type = vis.type = 'bandpass';
           const q = 1.5 + p.res * 11;
           f.Q.value = vis.Q.value = q;
-          wet.gain.value = 2.2 + q * 0.28; dry.gain.value = 0.12;
+          wet.gain.value = (2.2 + q * 0.28) * 1.25; dry.gain.value = 0.12;
         } else {
           f.type = vis.type = p.mode;
           const q = -2 + p.res * 22; // dB for lowpass/highpass
