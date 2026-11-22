@@ -206,20 +206,17 @@
       });
       return { bpm: 104, beats: 16, events: ev, voice: { hp: 90, body: 0, warm: -2.5, pres: 4, lp: 8000 } };
     })(),
-    // Compressor: finger‑picked, with loud bass/melody notes and very soft ghost notes, plus ringing tails.
+    // Compressor: big contrast on purpose. A hard‑picked chord rings out and decays, then whisper‑quiet
+    // fingerpicked notes follow; the last bar is one loud note held so you can hear the sustain change.
     dynamic: (() => {
       const ev = [];
-      const bars = [
-        [40, [59, 55, 59], [64], [59, 55]], [45, [60, 52, 60], [57, 64], [60, 52]],
-        [48, [55, 52, 55], [64], [55, 52]], [50, [57, 54, 57], [62, 66], [57, 54]],
-      ];
-      bars.forEach(([bass, ghosts, top, ghosts2], b) => {
+      const bars = [[[40, 47, 52, 56], [59, 56, 52, 56]], [[45, 52, 57, 60], [60, 57, 52, 57]], [[48, 55, 60, 64], [64, 60, 55, 60]]];
+      bars.forEach(([chord, ghosts], b) => {
         const o = b * 4;
-        ev.push(E(o, bass, 2, 1));
-        ghosts.forEach((m, i) => ev.push(E(o + 0.5 + i * 0.5, m, 0.6, 0.16 + 0.05 * (i % 2))));
-        ev.push(E(o + 2, top, 2, 0.95, { gap: 0.02 }));
-        ghosts2.forEach((m, i) => ev.push(E(o + 3 + i * 0.5, m, 0.6, 0.14)));
+        ev.push(E(o, chord, 2, 1, { gap: 0.012 }));
+        ghosts.forEach((m, i) => ev.push(E(o + 2 + i * 0.5, m, 0.5, 0.1 + 0.03 * (i % 2))));
       });
+      ev.push(E(12, [50, 62], 4, 1));
       return { bpm: 84, beats: 16, events: ev };
     })(),
     // Wah: 16th‑note funk stabs with muted scratches (the classic wah/auto‑wah groove).

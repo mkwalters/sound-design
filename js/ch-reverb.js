@@ -28,13 +28,15 @@
     if (!w || !fx.ir) return;
     g.clearRect(0, 0, w, H);
     const p = fx.params, data = fx.ir.getChannelData(0), sr = fx.ir.sampleRate;
-    const L = 30, R = 10, B = 22, T = 26;
+    const L = 44, R = 10, B = 32, T = 26;
     const span = Math.max(1, Math.min(9, p.decay * 1.1 + p.predelay + 0.1));
     const X = (t) => L + (t / span) * (w - L - R);
     const Y = (a) => H - B - a * (H - B - T);
     g.font = '10.5px "DM Mono", monospace'; g.fillStyle = SD.COL.ink3; g.textAlign = 'center'; g.strokeStyle = SD.COL.grid; g.lineWidth = 1;
     const step = span > 4 ? 1 : span > 2 ? 0.5 : 0.25;
-    for (let t = 0; t <= span + 1e-6; t += step) { g.beginPath(); g.moveTo(X(t), T); g.lineTo(X(t), H - B); g.stroke(); g.fillText(+t.toFixed(2) + 's', X(t), H - 6); }
+    for (let t = 0; t <= span + 1e-6; t += step) { g.beginPath(); g.moveTo(X(t), T); g.lineTo(X(t), H - B); g.stroke(); g.fillText(String(+t.toFixed(2)), X(t), H - B + 13); }
+    g.textAlign = 'right'; [0, 1].forEach((a) => g.fillText(String(a), L - 5, Y(a) + 3.5)); g.textAlign = 'center';
+    SD.axisTitles(irC, { L, R, T, B }, 'time after the clap (s)', 'level');
     // direct sound
     const dryA = pedal.on ? 1 - p.mix * 0.6 : 1;
     g.fillStyle = SD.COL.ink; g.fillRect(X(0) - 3, Y(dryA), 6, H - B - Y(dryA));

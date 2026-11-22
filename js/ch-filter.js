@@ -8,6 +8,11 @@
   // --- treadle ---
   const treadle = h('div', { class: 'treadle', role: 'slider', tabindex: 0, 'aria-label': 'Wah pedal position (drag up and down)', 'data-tip': 'Drag up for toe down (bright), down for heel down (dark).', 'data-tip-title': 'Treadle' });
   const readout = h('div', { class: 'treadle-readout' }, '');
+  // Bouncing "drag me" badge until the treadle is first touched, so it reads as a control.
+  const hint = h('div', { class: 'drag-hint', 'aria-hidden': 'true' }, h('b', null, '⇕'), ' drag the pedal');
+  const dropHint = () => hint.remove();
+  treadle.addEventListener('pointerdown', dropHint, { once: true });
+  treadle.addEventListener('keydown', dropHint, { once: true });
   const renderTreadle = () => {
     const pos = fx.curPos;
     treadle.style.transform = `rotateX(${(pos - 0.5) * 34}deg)`;
@@ -44,11 +49,11 @@
       h('div', { class: 'wah-ctls' },
         h('div', { class: 'ctl-group' }, h('span', { class: 'ctl-label' }, 'auto'), autoSeg.el),
         h('div', { class: 'pedal-knobs' }, kRes.el, kRate.el, kSens.el)),
-      h('div', { class: 'treadle-wrap' }, treadle, readout)),
+      h('div', { class: 'treadle-wrap' }, hint, treadle, readout)),
   });
   showAuto();
 
-  const resp = SD.canvas({ label: 'Frequency response', hint: 'lows ← → highs', height: 300 });
+  const resp = SD.canvas({ label: 'Frequency response', hint: 'what the filter boosts and cuts', height: 300 });
   const NF = 260, freqs = SD.logFreqs(NF), mag = new Float32Array(NF), ph = new Float32Array(NF);
   const spec = new Float32Array(fx.postA.frequencyBinCount);
   const binHz = SD.ctx.sampleRate / fx.postA.fftSize;

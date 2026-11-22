@@ -22,7 +22,7 @@
 
   const pedal = SD.pedal({ name: 'Shimmer Twins', sub: 'chorus · flanger', fx, top: preset.el, knobs: Object.values(knobs) });
 
-  const dly = SD.canvas({ label: 'Delay time', hint: 'wobbled by the LFO', height: 120 });
+  const dly = SD.canvas({ label: 'Delay time', hint: 'wobbled by the LFO', height: 150 });
   const comb = SD.canvas({ label: 'Frequency response', hint: 'the comb filter', height: 240 });
 
   const WIN = 4;
@@ -32,11 +32,15 @@
     g.clearRect(0, 0, w, H);
     const p = fx.params, now = ctx.currentTime;
     const maxMs = Math.max(6, (p.delay + fx.depthSec() * 1000) * 1.15);
-    const Y = (sec) => H - 16 - ((sec * 1000) / maxMs) * (H - 30);
+    const fr = { L: 48, R: 10, T: 8, B: 30 }, pw = w - fr.L - fr.R;
+    const Y = (sec) => H - fr.B - ((sec * 1000) / maxMs) * (H - fr.T - fr.B);
     g.font = '10px "DM Mono", monospace'; g.fillStyle = SD.COL.ink3; g.strokeStyle = SD.COL.grid; g.lineWidth = 1;
-    [0, maxMs / 2, maxMs].forEach((m) => { const y = Y(m / 1000); g.beginPath(); g.moveTo(44, y); g.lineTo(w, y); g.stroke(); g.textAlign = 'right'; g.fillText(m.toFixed(m < 10 ? 1 : 0) + 'ms', 40, y + 3); });
+    [0, maxMs / 2, maxMs].forEach((m) => { const y = Y(m / 1000); g.beginPath(); g.moveTo(fr.L, y); g.lineTo(w - fr.R, y); g.stroke(); g.textAlign = 'right'; g.fillText(m.toFixed(m < 10 ? 1 : 0), fr.L - 5, y + 3); });
+    g.textAlign = 'center';
+    [[0, '−4 s'], [0.5, '−2 s'], [1, 'now']].forEach(([f, t]) => { g.textAlign = f === 1 ? 'right' : f ? 'center' : 'left'; g.fillText(t, fr.L + f * pw, H - fr.B + 13); });
+    SD.axisTitles(dly, fr, 'time', 'delay (ms)');
     const pts = [];
-    for (let i = 0; i <= 240; i++) { const t = now - WIN + (i / 240) * WIN; pts.push([44 + (i / 240) * (w - 54), Y(fx.curDelay(t))]); }
+    for (let i = 0; i <= 240; i++) { const t = now - WIN + (i / 240) * WIN; pts.push([fr.L + (i / 240) * pw, Y(fx.curDelay(t))]); }
     SD.strokePath(g, pts, accent, 2.8);
     const last = pts[pts.length - 1];
     g.beginPath(); g.arc(last[0], last[1], 5, 0, Math.PI * 2); g.fillStyle = accent; g.fill();

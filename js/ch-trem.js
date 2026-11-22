@@ -15,8 +15,8 @@
   const pedal = SD.pedal({ name: 'Wobble Lamp', sub: 'tremolo · vibrato', fx, top: mode.el, knobs: [kRate, kDepth],
     middle: h('div', { class: 'ctl-group' }, h('span', { class: 'ctl-label' }, 'lfo shape'), shape.el) });
 
-  const lfoC = SD.canvas({ label: 'The LFO', hint: 'a slow wave that turns the knob for you', height: 110 });
-  const sig = SD.canvas({ label: 'What it does to your signal', hint: 'three wobbles, slowed down', height: 200 });
+  const lfoC = SD.canvas({ label: 'The LFO', hint: 'a slow wave that turns the knob for you', height: 140 });
+  const sig = SD.canvas({ label: 'What it does to your signal', hint: 'three wobbles', height: 230 });
 
   const WIN = 2;
   const lfoAt = (t) => fx.lfo.value(t);
@@ -24,10 +24,18 @@
     const { g, w, h: H } = lfoC;
     if (!w) return;
     g.clearRect(0, 0, w, H);
-    const now = ctx.currentTime, mid = H / 2, A = H / 2 - 12;
-    g.strokeStyle = SD.COL.grid2; g.lineWidth = 1; g.beginPath(); g.moveTo(0, mid); g.lineTo(w, mid); g.stroke();
+    const fr = { L: 44, R: 44, T: 8, B: 30 };
+    const now = ctx.currentTime, mid = fr.T + (H - fr.T - fr.B) / 2, A = (H - fr.T - fr.B) / 2 - 2, pw = w - fr.L - fr.R;
+    g.lineWidth = 1; g.font = '10px "DM Mono", monospace';
+    [-1, 0, 1].forEach((v) => {
+      g.strokeStyle = v ? SD.COL.grid : SD.COL.grid2; g.beginPath(); g.moveTo(fr.L, mid - v * A); g.lineTo(fr.L + pw, mid - v * A); g.stroke();
+      g.fillStyle = SD.COL.ink3; g.textAlign = 'right'; g.fillText(v > 0 ? '+1' : String(v), fr.L - 5, mid - v * A + 3.5);
+    });
+    g.textAlign = 'center';
+    [[0, '−2 s'], [0.5, '−1 s'], [1, 'now']].forEach(([f, t]) => { g.textAlign = f === 1 ? 'right' : f ? 'center' : 'left'; g.fillText(t, fr.L + f * pw, H - fr.B + 13); });
+    SD.axisTitles(lfoC, fr, 'time', 'LFO');
     const pts = [];
-    for (let i = 0; i <= 300; i++) { const t = now - WIN + (i / 300) * WIN; pts.push([(i / 300) * (w - 40), mid - lfoAt(t) * A * (pedal.on ? 1 : 0)]); }
+    for (let i = 0; i <= 300; i++) { const t = now - WIN + (i / 300) * WIN; pts.push([fr.L + (i / 300) * pw, mid - lfoAt(t) * A * (pedal.on ? 1 : 0)]); }
     SD.strokePath(g, pts, accent, 3);
     // the "hand" turning the knob at the right edge
     const v = pedal.on ? lfoAt(now) : 0;
@@ -41,8 +49,18 @@
     const { g, w, h: H } = sig;
     if (!w) return;
     g.clearRect(0, 0, w, H);
-    const now = ctx.currentTime, mid = H / 2, A = H / 2 - 14;
-    const p = fx.params, n = Math.floor(w * 2), pts = [], env = [];
+    const fr = { L: 44, R: 8, T: 22, B: 30 };
+    const now = ctx.currentTime, mid = fr.T + (H - fr.T - fr.B) / 2, A = (H - fr.T - fr.B) / 2 - 2, pw = w - fr.L - fr.R;
+    const p = fx.params, n = Math.floor(pw * 2), pts = [], env = [];
+    g.lineWidth = 1; g.font = '10px "DM Mono", monospace';
+    [-1, 0, 1].forEach((v) => {
+      g.strokeStyle = v ? SD.COL.grid : SD.COL.grid2; g.beginPath(); g.moveTo(fr.L, mid - v * A); g.lineTo(w - fr.R, mid - v * A); g.stroke();
+      g.fillStyle = SD.COL.ink3; g.textAlign = 'right'; g.fillText(v > 0 ? '+1' : String(v), fr.L - 5, mid - v * A + 3.5);
+    });
+    const winS = 3 / p.rate;
+    g.textAlign = 'center';
+    [0, 1, 2, 3].forEach((c) => (g.textAlign = c === 3 ? 'right' : c === 0 ? 'left' : 'center') && g.fillText((c ? '+' : '') + (c / p.rate).toFixed(2).replace(/\.?0+$/, '') + ' s', fr.L + (c / 3) * pw, H - fr.B + 13));
+    SD.axisTitles(sig, fr, `time (3 LFO cycles = ${winS.toFixed(2)} s; wiggles drawn slower than real)`, 'amplitude');
     const on = pedal.on, win = 3 / p.rate, CYC = 9; // 9 visual wiggles per LFO wobble
     const k = p.depth * 0.6 * CYC; // phase deviation → ±(0.6·depth) relative pitch swing, exaggerated for the eye
     for (let i = 0; i <= n; i++) {
@@ -50,7 +68,7 @@
       let amp = 1, phase = 2 * Math.PI * CYC * ph;
       if (on && p.mode === 'tremolo') amp = 1 - p.depth / 2 + (p.depth / 2) * lfoAt(t);
       if (on && p.mode === 'vibrato') phase += -k * Math.cos(2 * Math.PI * ph);
-      const x = (i / n) * w;
+      const x = fr.L + (i / n) * pw;
       pts.push([x, mid - Math.sin(phase) * amp * A]);
       if (i % 4 === 0) env.push([x, mid - amp * A]);
     }
@@ -60,8 +78,8 @@
       g.closePath(); g.fillStyle = SD.alpha(accent, 0.18); g.fill();
     }
     SD.strokePath(g, pts, on ? SD.alpha('#2b2320', 0.85) : SD.COL.ink3, 1.4);
-    g.font = '11px "DM Mono", monospace'; g.fillStyle = SD.COL.ink2;
-    g.fillText(!on ? 'bypassed: steady wave' : p.mode === 'tremolo' ? 'height swells and shrinks → volume' : 'wiggles squeeze and stretch → pitch', 6, 14);
+    g.font = '11px "DM Mono", monospace'; g.fillStyle = SD.COL.ink2; g.textAlign = 'left';
+    g.fillText(!on ? 'bypassed: steady wave' : p.mode === 'tremolo' ? 'height swells and shrinks → volume' : 'wiggles squeeze and stretch → pitch', fr.L + 4, 14);
   };
   SD.onFrame(() => { lfoC.draw(); sig.draw(); }, document.getElementById('bench-trem'));
 

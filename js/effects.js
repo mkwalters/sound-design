@@ -78,7 +78,7 @@
     const shaper = ctx.createWaveShaper(); shaper.oversample = '4x';
     const dc = BQ('highpass', 25, 0.7), tone = BQ('lowpass', 4000, 0.6), level = G(0.6);
     input.connect(hp).connect(mid).connect(shaper).connect(dc).connect(tone).connect(level);
-    const fx = { input, output: level, params: { mode: 'overdrive', drive: 0.6, tone: 0.55, level: 0.7 } };
+    const fx = { input, output: level, params: { mode: 'overdrive', drive: 0.3, tone: 0.55, level: 0.7 } };
     fx.apply = (k) => {
       const p = fx.params;
       if (k === 'mode' || k === 'drive') {
@@ -105,7 +105,7 @@
     input.connect(comp).connect(makeup);
     input.connect(preA); makeup.connect(postA);
     comp.knee.value = 4;
-    const fx = { input, output: makeup, comp, preA, postA, params: { threshold: -28, ratio: 4, attack: 0.008, release: 0.22, makeup: 0 } };
+    const fx = { input, output: makeup, comp, preA, postA, params: { threshold: -40, ratio: 10, attack: 0.003, release: 0.25, makeup: 7 } };
     fx.apply = (k) => {
       const p = fx.params;
       if (k === 'threshold') smooth(comp.threshold, p.threshold);

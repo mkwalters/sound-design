@@ -17,7 +17,7 @@
     osc.connect(gain).connect(dest); osc.start();
     return () => { osc && osc.stop(); osc = null; gain = null; };
   };
-  const play = h('button', { type: 'button', class: 'play-btn' }, h('span', { class: 'play-icon' }), h('span', { class: 'play-label' }, 'Play tone'));
+  const play = h('button', { type: 'button', class: 'play-btn sparkle' }, h('span', { class: 'play-icon' }), h('span', { class: 'play-label' }, 'Play tone'));
   play.addEventListener('click', () => (SD.player.isOwner(owner) ? SD.player.stop() : SD.player.start(owner, startFn, out)));
   SD.player.on(() => {
     const on = SD.player.isOwner(owner);
@@ -43,8 +43,8 @@
   pedal.el.querySelector('.fs-hint').remove();
   pedal.el.querySelector('.led').remove();
 
-  const wave = SD.canvas({ label: 'Waveform', hint: '20 milliseconds of sound', height: 190 });
-  const harm = SD.canvas({ label: 'Hidden harmonics', hint: 'what the shape is made of', height: 150 });
+  const wave = SD.canvas({ label: 'Waveform', hint: '20 milliseconds of sound', height: 210 });
+  const harm = SD.canvas({ label: 'Hidden harmonics', hint: 'what the shape is made of', height: 170 });
 
   const shapeFn = (s, ph) => {
     const x = ph - Math.floor(ph);
@@ -57,21 +57,26 @@
   wave.draw = () => {
     const { g, w, h: H } = wave;
     g.clearRect(0, 0, w, H);
-    const mid = H / 2;
-    g.strokeStyle = SD.COL.grid2; g.lineWidth = 1;
-    g.beginPath(); g.moveTo(0, mid); g.lineTo(w, mid); g.stroke();
-    g.font = '10.5px "DM Mono", monospace'; g.fillStyle = SD.COL.ink3;
-    g.fillText('loud ↑', 4, 14); g.fillText('time →', w - 50, H - 6);
+    const fr = { L: 44, R: 8, T: 8, B: 30 };
+    const mid = fr.T + (H - fr.T - fr.B) / 2, A = (H - fr.T - fr.B) / 2 - 4, pw = w - fr.L - fr.R;
+    g.lineWidth = 1; g.font = '10px "DM Mono", monospace'; g.fillStyle = SD.COL.ink3;
+    [-1, 0, 1].forEach((v) => {
+      g.strokeStyle = v ? SD.COL.grid : SD.COL.grid2; g.beginPath(); g.moveTo(fr.L, mid - v * A); g.lineTo(w - fr.R, mid - v * A); g.stroke();
+      g.textAlign = 'right'; g.fillText(v > 0 ? '+1' : String(v), fr.L - 5, mid - v * A + 3.5);
+    });
+    g.textAlign = 'center';
+    [0, 5, 10, 15, 20].forEach((ms) => g.fillText(String(ms), fr.L + (ms / 20) * pw, H - fr.B + 13));
+    SD.axisTitles(wave, fr, 'time (ms)', 'amplitude');
     const win = 0.02, pts = [];
     const n = Math.max(400, Math.floor(w * 1.5));
     for (let i = 0; i <= n; i++) {
       const t = (i / n) * win;
       const v = shapeFn(p.shape, t * p.freq + scroll);
-      pts.push([(i / n) * w, mid - v * p.amp * (H / 2 - 14)]);
+      pts.push([fr.L + (i / n) * pw, mid - v * p.amp * A]);
     }
     g.save();
     g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
-    g.lineTo(w, mid); g.lineTo(0, mid); g.closePath();
+    g.lineTo(fr.L + pw, mid); g.lineTo(fr.L, mid); g.closePath();
     g.fillStyle = SD.alpha(accent, 0.12); g.fill();
     g.restore();
     SD.strokePath(g, pts, accent, 2.6);
@@ -79,22 +84,29 @@
   harm.draw = () => {
     const { g, w, h: H } = harm;
     g.clearRect(0, 0, w, H);
-    const N = 12, bw = (w - 20) / N;
+    const fr = { L: 44, R: 8, T: 8, B: 30 }, N = 12, bw = (w - fr.L - fr.R) / N, ph = H - fr.T - fr.B;
     const amp = (k) => {
       if (p.shape === 'sine') return k === 1 ? 1 : 0;
       if (p.shape === 'square') return k % 2 ? 1 / k : 0;
       if (p.shape === 'sawtooth') return 1 / k;
       return k % 2 ? 1 / (k * k) : 0;
     };
-    g.font = '10.5px "DM Mono", monospace'; g.textAlign = 'center';
+    g.font = '10px "DM Mono", monospace'; g.lineWidth = 1;
+    [0, 0.5, 1].forEach((a) => {
+      const y = H - fr.B - Math.sqrt(a) * ph;
+      g.strokeStyle = SD.COL.grid; g.beginPath(); g.moveTo(fr.L, y); g.lineTo(w - fr.R, y); g.stroke();
+      g.fillStyle = SD.COL.ink3; g.textAlign = 'right'; g.fillText(String(a), fr.L - 5, y + 3.5);
+    });
+    g.textAlign = 'center';
     for (let k = 1; k <= N; k++) {
-      const a = amp(k), bh = Math.sqrt(a) * (H - 34);
-      const x = 10 + (k - 1) * bw + bw * 0.18;
+      const a = amp(k), bh = Math.sqrt(a) * ph;
+      const x = fr.L + (k - 1) * bw + bw * 0.18;
       g.fillStyle = k === 1 ? accent : SD.alpha(accent, 0.55);
-      if (bh > 0) { g.beginPath(); g.roundRect ? g.roundRect(x, H - 18 - bh, bw * 0.64, bh, 4) : g.rect(x, H - 18 - bh, bw * 0.64, bh); g.fill(); }
+      if (bh > 0) { g.beginPath(); g.roundRect ? g.roundRect(x, H - fr.B - bh, bw * 0.64, bh, 4) : g.rect(x, H - fr.B - bh, bw * 0.64, bh); g.fill(); }
       g.fillStyle = SD.COL.ink3;
-      if (bw > 30 || k % 2 === 1) g.fillText(k === 1 ? 'note' : k + '×', x + bw * 0.32, H - 4);
+      if (bw > 30 || k % 2 === 1) g.fillText(k === 1 ? 'note' : k + '×', x + bw * 0.32, H - fr.B + 13);
     }
+    SD.axisTitles(harm, fr, 'harmonic (× the note’s frequency)', 'strength');
   };
   SD.onFrame((t) => {
     const dt = Math.min(0.05, t - lastT); lastT = t;

@@ -233,6 +233,9 @@
     return api;
   };
 
+  // ---------- sparkle: a .play-btn.sparkle shimmers until it is first pressed ----------
+  document.addEventListener('click', (e) => { const b = e.target.closest('.play-btn.sparkle'); if (b) b.classList.remove('sparkle'); }, true);
+
   // ---------- frame loop (only runs callbacks for visible elements) ----------
   const recs = [];
   const io = new IntersectionObserver((entries) => entries.forEach((en) => {
@@ -257,7 +260,7 @@
     const owner = { label: o.label || 'Demo' };
     let src = o.value;
     const label = h('span', { class: 'play-label' }, 'Play');
-    const play = h('button', { type: 'button', class: 'play-btn' }, h('span', { class: 'play-icon', 'aria-hidden': 'true' }), label);
+    const play = h('button', { type: 'button', class: 'play-btn sparkle' }, h('span', { class: 'play-icon', 'aria-hidden': 'true' }), label);
     const chips = h('div', { class: 'chips', role: 'group', 'aria-label': 'Sound source' });
     function renderChips() {
       chips.innerHTML = '';
@@ -305,9 +308,18 @@
   const FREQ_TICKS = [50, 100, 200, 500, 1000, 2000, 5000, 10000];
   SD.freqLabel = (f) => (f >= 1000 ? (f / 1000) + 'k' : String(f));
   /* Draw a frequency-response frame; returns mapping functions. */
+  /* Axis titles: x centred under the plot area, y rotated along the left edge. */
+  SD.axisTitles = function (cv, fr, xt, yt) {
+    const { g, w, h: H } = cv;
+    g.save();
+    g.font = '10px "DM Mono", monospace'; g.fillStyle = COL.ink2; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+    if (xt) g.fillText(xt, fr.L + (w - fr.L - fr.R) / 2, H - 3);
+    if (yt) { g.translate(10, fr.T + (H - fr.T - fr.B) / 2); g.rotate(-Math.PI / 2); g.textBaseline = 'middle'; g.fillText(yt, 0, 0); }
+    g.restore();
+  };
   SD.freqFrame = function (cv, o = {}) {
     const { g, w, h: H } = cv;
-    const L = 34, R = 8, T = 8, B = 20;
+    const L = 46, R = 8, T = 8, B = 32;
     const fmin = o.fmin || 20, fmax = o.fmax || 20000;
     const dbMin = o.dbMin ?? -30, dbMax = o.dbMax ?? 15;
     const x = (f) => L + (Math.log(f / fmin) / Math.log(fmax / fmin)) * (w - L - R);
@@ -320,7 +332,7 @@
     FREQ_TICKS.forEach((f) => {
       if (f < fmin || f > fmax) return;
       g.strokeStyle = COL.grid; g.beginPath(); g.moveTo(x(f), T); g.lineTo(x(f), H - B); g.stroke();
-      g.fillText(SD.freqLabel(f), x(f), H - 6);
+      g.fillText(SD.freqLabel(f), x(f), H - B + 13);
     });
     g.textAlign = 'right';
     const step = o.dbStep || 10;
@@ -329,6 +341,7 @@
       g.beginPath(); g.moveTo(L, y(db)); g.lineTo(w - R, y(db)); g.stroke();
       g.fillText((db > 0 ? '+' : '') + db, L - 5, y(db) + 3.5);
     }
+    SD.axisTitles(cv, { L, R, T, B }, 'frequency (Hz) · lows ← → highs', 'level (dB)');
     return { x, y, L, R, T, B, fmin, fmax, dbMin, dbMax };
   };
   SD.logFreqs = (n, fmin = 20, fmax = 20000) => {

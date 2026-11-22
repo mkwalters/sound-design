@@ -50,14 +50,16 @@
     const { g, w, h: H } = ir;
     if (!w) return;
     g.clearRect(0, 0, w, H);
-    const p = fx.params, L = 30, R = 10, B = 22, T = 18;
+    const p = fx.params, L = 44, R = 10, B = 32, T = 18;
     const span = Math.max(1.2, Math.min(6, pedal.on ? p.time * Math.max(4, Math.log(0.02) / Math.log(Math.max(0.01, p.feedback))) + 0.2 : 1.2));
     const X = (t) => L + (t / span) * (w - L - R), Y = (a) => H - B - a * (H - B - T);
     g.font = '10.5px "DM Mono", monospace'; g.fillStyle = SD.COL.ink3; g.textAlign = 'center';
     const step = span > 3 ? 1 : span > 1.5 ? 0.5 : 0.25;
     g.strokeStyle = SD.COL.grid; g.lineWidth = 1;
-    for (let t = 0; t <= span + 1e-6; t += step) { g.beginPath(); g.moveTo(X(t), T); g.lineTo(X(t), H - B); g.stroke(); g.fillText(t.toFixed(2).replace(/\.?0+$/, '') + 's', X(t), H - 6); }
+    for (let t = 0; t <= span + 1e-6; t += step) { g.beginPath(); g.moveTo(X(t), T); g.lineTo(X(t), H - B); g.stroke(); g.fillText(t.toFixed(2).replace(/\.?0+$/, ''), X(t), H - B + 13); }
     g.strokeStyle = SD.COL.grid2; g.beginPath(); g.moveTo(L, H - B); g.lineTo(w - R, H - B); g.stroke();
+    g.textAlign = 'right'; g.fillStyle = SD.COL.ink3; [0, 0.5, 1].forEach((a) => g.fillText(String(a), L - 5, Y(a) + 3.5)); g.textAlign = 'center';
+    SD.axisTitles(ir, { L, R, T, B }, 'time after the click (s)', 'level');
     const bar = (t, a, color, lbl, blur) => {
       const x = X(t), bw = 7 + blur * 10;
       const grd = g.createLinearGradient(0, Y(a), 0, H - B);

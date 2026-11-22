@@ -3,7 +3,7 @@
 A ~15-minute interactive lesson on guitar effects, one page per chapter (Next/Back, ←/→ keys,
 thin progress bar on top): overdrive/distortion/fuzz, compression, filters & wah,
 tremolo/vibrato, chorus/flanger, phaser, delay and reverb, ending with a reorderable
-pedalboard, a "name that pedal" ear-training quiz and a cheat sheet. Hover any knob for a
+pedalboard, endless "name that pedal" ear training (with per-pedal weak-spot stats) and a cheat sheet. Hover any knob for a
 one-line explanation.
 
 Demo audio comes from a small sampler built on real electric-guitar samples

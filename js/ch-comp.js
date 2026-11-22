@@ -7,11 +7,11 @@
 
   const db = (v) => (v > 0 ? '+' : '') + Math.round(v) + ' dB';
   const ms = (v) => (v < 0.01 ? (v * 1000).toFixed(1) : Math.round(v * 1000)) + ' ms';
-  const kThr = SD.knob({ label: 'Threshold', tip: 'The volume line. Anything louder gets squashed.', min: -60, max: 0, value: -28, format: db, onInput: (v) => { fx.set('threshold', v); curve.draw(); } });
-  const kRatio = SD.knob({ label: 'Ratio', tip: 'How hard it squashes. At 4:1, going 4 dB over the line comes out only 1 dB over.', min: 1, max: 20, value: 4, scale: 'log', format: (v) => (v >= 19.5 ? '20:1 (limit)' : v.toFixed(v < 3 ? 1 : 0) + ':1'), onInput: (v) => { fx.set('ratio', v); curve.draw(); } });
-  const kAtk = SD.knob({ label: 'Attack', tip: 'How fast it grabs. Slow lets the pick “snap” through first.', min: 0.001, max: 0.2, value: 0.008, scale: 'log', format: ms, onInput: (v) => fx.set('attack', v) });
-  const kRel = SD.knob({ label: 'Release', tip: 'How fast it lets go once the note gets quieter.', min: 0.03, max: 1, value: 0.22, scale: 'log', format: ms, onInput: (v) => fx.set('release', v) });
-  const kOut = SD.knob({ label: 'Output', tip: 'Make‑up volume to win back what the squashing took.', min: -12, max: 12, value: 0, format: db, onInput: (v) => fx.set('makeup', v) });
+  const kThr = SD.knob({ label: 'Threshold', tip: 'The volume line. Anything louder gets squashed.', min: -60, max: 0, value: -40, format: db, onInput: (v) => { fx.set('threshold', v); curve.draw(); } });
+  const kRatio = SD.knob({ label: 'Ratio', tip: 'How hard it squashes. At 4:1, going 4 dB over the line comes out only 1 dB over.', min: 1, max: 20, value: 10, scale: 'log', format: (v) => (v >= 19.5 ? '20:1 (limit)' : v.toFixed(v < 3 ? 1 : 0) + ':1'), onInput: (v) => { fx.set('ratio', v); curve.draw(); } });
+  const kAtk = SD.knob({ label: 'Attack', tip: 'How fast it grabs. Slow lets the pick “snap” through first.', min: 0.001, max: 0.2, value: 0.003, scale: 'log', format: ms, onInput: (v) => fx.set('attack', v) });
+  const kRel = SD.knob({ label: 'Release', tip: 'How fast it lets go once the note gets quieter.', min: 0.03, max: 1, value: 0.25, scale: 'log', format: ms, onInput: (v) => fx.set('release', v) });
+  const kOut = SD.knob({ label: 'Output', tip: 'Make‑up volume to win back what the squashing took.', min: -12, max: 12, value: 7, format: db, onInput: (v) => fx.set('makeup', v) });
 
   const leds = Array.from({ length: 12 }, () => h('i'));
   const grText = h('span', null, '0 dB');
@@ -37,7 +37,7 @@
     const { g, w, h: H } = curve;
     if (!w) return;
     g.clearRect(0, 0, w, H);
-    const s = Math.min(w - 40, H - 30), ox = (w - s) / 2 + 10, oy = 6;
+    const s = Math.min(w - 64, H - 40), ox = (w - s) / 2 + 16, oy = 6;
     const X = (v) => ox + ((v - LO) / -LO) * s, Y = (v) => oy + (1 - (v - LO) / -LO) * s;
     g.strokeStyle = SD.COL.grid; g.lineWidth = 1;
     g.font = '10px "DM Mono", monospace'; g.fillStyle = SD.COL.ink3;
@@ -47,6 +47,10 @@
       g.textAlign = 'right'; g.fillText(v, ox - 4, Y(v) + 3);
       g.textAlign = 'center'; g.fillText(v, X(v), oy + s + 13);
     }
+    g.fillStyle = SD.COL.ink2; g.textAlign = 'center';
+    g.fillText('input level (dB)', X(LO / 2), oy + s + 27);
+    g.save(); g.translate(ox - 30, Y(LO / 2)); g.rotate(-Math.PI / 2); g.fillText('output level (dB)', 0, 0); g.restore();
+    g.fillStyle = SD.COL.ink3;
     g.setLineDash([5, 5]); SD.strokePath(g, [[X(LO), Y(LO)], [X(0), Y(0)]], SD.COL.ink3, 1.3); g.setLineDash([]);
     const T = fx.params.threshold;
     if (pedal.on) {
@@ -71,21 +75,39 @@
     const { g, w, h: H } = hist;
     if (!w) return;
     g.clearRect(0, 0, w, H);
-    const Y = (v) => 8 + (1 - (SD.clamp(v, LO, 0) - LO) / -LO) * (H - 16);
-    g.strokeStyle = SD.COL.grid; g.lineWidth = 1; g.font = '10px "DM Mono", monospace'; g.fillStyle = SD.COL.ink3; g.textAlign = 'left';
-    for (let v = LO; v <= 0; v += 12) { g.beginPath(); g.moveTo(0, Y(v)); g.lineTo(w, Y(v)); g.stroke(); g.fillText(v + ' dB', 4, Y(v) + (v === 0 ? 11 : -3)); }
-    if (pedal.on) { g.setLineDash([4, 4]); g.strokeStyle = SD.alpha(accent, 0.7); g.beginPath(); g.moveTo(0, Y(fx.params.threshold)); g.lineTo(w, Y(fx.params.threshold)); g.stroke(); g.setLineDash([]); }
+    const fr = { L: 44, R: 6, T: 8, B: 30 };
+    const Y = (v) => fr.T + (1 - (SD.clamp(v, LO, 0) - LO) / -LO) * (H - fr.T - fr.B);
+    const XS = (i) => fr.L + (i / (N - 1)) * (w - fr.L - fr.R);
+    g.strokeStyle = SD.COL.grid; g.lineWidth = 1; g.font = '10px "DM Mono", monospace'; g.fillStyle = SD.COL.ink3; g.textAlign = 'right';
+    for (let v = LO; v <= 0; v += 12) { g.beginPath(); g.moveTo(fr.L, Y(v)); g.lineTo(w - fr.R, Y(v)); g.stroke(); g.fillText(String(v), fr.L - 5, Y(v) + 3.5); }
+    g.textAlign = 'center';
+    [[0, '−4 s', 'left'], [N / 2, '−2 s', 'center'], [N - 1, 'now', 'right']].forEach(([i, t, al]) => { g.textAlign = al; g.fillText(t, XS(i), H - fr.B + 13); });
+    SD.axisTitles(hist, fr, 'time', 'level (dB)');
+    if (pedal.on) { g.setLineDash([4, 4]); g.strokeStyle = SD.alpha(accent, 0.7); g.beginPath(); g.moveTo(fr.L, Y(fx.params.threshold)); g.lineTo(w - fr.R, Y(fx.params.threshold)); g.stroke(); g.setLineDash([]); }
     const line = (arr, color, width, fill) => {
       const pts = [];
-      for (let i = 0; i < N; i++) pts.push([(i / (N - 1)) * w, Y(arr[(head + i) % N])]);
+      for (let i = 0; i < N; i++) pts.push([XS(i), Y(arr[(head + i) % N])]);
       if (fill) {
         g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
-        g.lineTo(w, H); g.lineTo(0, H); g.closePath(); g.fillStyle = fill; g.fill();
+        g.lineTo(XS(N - 1), Y(LO)); g.lineTo(XS(0), Y(LO)); g.closePath(); g.fillStyle = fill; g.fill();
       }
       SD.strokePath(g, pts, color, width);
     };
     line(hin, 'rgba(43,35,32,.32)', 1.6, 'rgba(43,35,32,.05)');
     line(hout, accent, 2.4, SD.alpha(accent, 0.12));
+    // loud‑to‑quiet spread over the window: the number a compressor shrinks
+    const sIn = spread(hin), sOut = spread(hout);
+    if (sIn != null) {
+      g.textAlign = 'left'; g.font = '11px "DM Mono", monospace';
+      g.fillStyle = 'rgba(253,250,243,.9)'; g.fillRect(fr.L + 4, fr.T + 2, 236, 18);
+      g.fillStyle = SD.COL.ink2; g.fillText(`loud↔quiet: in ${sIn} dB → `, fr.L + 8, fr.T + 15);
+      g.fillStyle = accent; g.fillText(`out ${sOut} dB`, fr.L + 8 + g.measureText(`loud↔quiet: in ${sIn} dB → `).width, fr.T + 15);
+    }
+  };
+  const spread = (arr) => {
+    const v = Array.from(arr).filter((x) => x > -70).sort((a, b) => a - b);
+    if (v.length < N * 0.5) return null;
+    return Math.round(v[Math.floor(0.95 * (v.length - 1))] - v[Math.floor(0.1 * (v.length - 1))]);
   };
 
   const buf = new Float32Array(fx.preA.fftSize);

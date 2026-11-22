@@ -123,41 +123,55 @@
 
   const tr = SD.transport({ label: 'Pedalboard', sources: ['arp', 'lick', 'riff', 'funk', 'held', 'drums'], value: 'arp', dest: () => input });
 
-  const scope = SD.canvas({ label: 'Output waveform', height: 80 });
-  const spec = SD.canvas({ label: 'Output spectrum', height: 80 });
+  const scope = SD.canvas({ label: 'Output waveform', height: 120 });
+  const spec = SD.canvas({ label: 'Output spectrum', height: 120 });
   const tbuf = new Float32Array(analyser.fftSize), fbuf = new Float32Array(analyser.frequencyBinCount);
   const ACC = SD.accentOf('board');
+  const FR = { L: 44, R: 8, T: 6, B: 30 };
   let scopeGain = 0.2;
   SD.onFrame(() => {
     const playing = SD.player.isOwner(tr.owner);
     if (scope.w) {
       const { g, w, h: H } = scope;
+      const pw = w - FR.L - FR.R, mid = FR.T + (H - FR.T - FR.B) / 2, A = (H - FR.T - FR.B) / 2;
+      const spanMs = (1000 / ctx.sampleRate) * 1000;
       g.clearRect(0, 0, w, H);
-      g.strokeStyle = SD.COL.grid2; g.lineWidth = 1; g.beginPath(); g.moveTo(0, H / 2); g.lineTo(w, H / 2); g.stroke();
+      g.font = '10px "DM Mono", monospace'; g.fillStyle = SD.COL.ink3; g.lineWidth = 1;
+      [-1, 0, 1].forEach((v) => {
+        g.strokeStyle = v ? SD.COL.grid : SD.COL.grid2; g.beginPath(); g.moveTo(FR.L, mid - v * A); g.lineTo(w - FR.R, mid - v * A); g.stroke();
+        g.textAlign = 'right'; g.fillText(v > 0 ? '+1' : String(v), FR.L - 5, mid - v * A + 3.5);
+      });
+      g.textAlign = 'center';
+      [0, 10, 20].forEach((ms) => g.fillText(String(ms), FR.L + (ms / spanMs) * pw, H - FR.B + 13));
+      SD.axisTitles(scope, FR, 'time (ms)', 'amp.');
       if (playing) {
         analyser.getFloatTimeDomainData(tbuf);
         let start = 0; for (let i = 1; i < 1024; i++) if (tbuf[i - 1] < 0 && tbuf[i] >= 0) { start = i; break; }
         let pk = 0; for (let i = 0; i < tbuf.length; i++) pk = Math.max(pk, Math.abs(tbuf[i]));
         scopeGain = Math.max(pk, scopeGain * 0.97, 0.05);
-        const pts = []; for (let i = 0; i < 1000; i++) pts.push([(i / 999) * w, H / 2 - SD.clamp((tbuf[start + i] || 0) / scopeGain, -1, 1) * (H / 2 - 6)]);
+        const pts = []; for (let i = 0; i < 1000; i++) pts.push([FR.L + (i / 999) * pw, mid - SD.clamp((tbuf[start + i] || 0) / scopeGain, -1, 1) * A]);
         SD.strokePath(g, pts, ACC, 1.8);
       }
     }
     if (spec.w) {
       const { g, w, h: H } = spec;
+      const pw = w - FR.L - FR.R, base = H - FR.B, ph = H - FR.T - FR.B;
+      const X = (f) => FR.L + (Math.log(f / 30) / Math.log(16000 / 30)) * pw;
       g.clearRect(0, 0, w, H);
+      g.font = '10px "DM Mono", monospace'; g.fillStyle = SD.COL.ink3; g.lineWidth = 1; g.textAlign = 'center';
+      [100, 1000, 10000].forEach((f) => { g.strokeStyle = SD.COL.grid; g.beginPath(); g.moveTo(X(f), FR.T); g.lineTo(X(f), base); g.stroke(); g.fillText(SD.freqLabel(f), X(f), H - FR.B + 13); });
+      g.textAlign = 'right'; [[-100, 0], [-25, 1]].forEach(([db, a]) => g.fillText(String(db), FR.L - 5, base - a * ph + 3.5));
+      SD.axisTitles(spec, FR, 'frequency (Hz)', 'dB');
       if (playing) {
         analyser.getFloatFrequencyData(fbuf);
         const binHz = ctx.sampleRate / analyser.fftSize;
-        g.beginPath(); g.moveTo(0, H);
-        for (let x = 0; x <= w; x += 2) {
-          const f = 30 * Math.pow(16000 / 30, x / w), b = Math.min(fbuf.length - 1, Math.round(f / binHz));
-          g.lineTo(x, H - SD.clamp((fbuf[b] + 100) / 75, 0, 1) * (H - 6));
+        g.beginPath(); g.moveTo(FR.L, base);
+        for (let x = 0; x <= pw; x += 2) {
+          const f = 30 * Math.pow(16000 / 30, x / pw), b = Math.min(fbuf.length - 1, Math.round(f / binHz));
+          g.lineTo(FR.L + x, base - SD.clamp((fbuf[b] + 100) / 75, 0, 1) * ph);
         }
-        g.lineTo(w, H); g.closePath(); g.fillStyle = SD.alpha(ACC, 0.35); g.fill();
+        g.lineTo(FR.L + pw, base); g.closePath(); g.fillStyle = SD.alpha(ACC, 0.35); g.fill();
       }
-      g.font = '10px "DM Mono", monospace'; g.fillStyle = SD.COL.ink3;
-      g.fillText('lows', 4, H - 4); g.textAlign = 'right'; g.fillText('highs', w - 4, H - 4); g.textAlign = 'left';
     }
   }, root);
 
