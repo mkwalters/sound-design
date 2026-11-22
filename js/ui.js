@@ -183,6 +183,26 @@
   };
 
   // ---------- pedal enclosure ----------
+  // Bouncing "drag a knob" badge (like the wah treadle's) until the first knob is turned anywhere; remembered per viewer.
+  const KNOB_KEY = 'sd-knob-learned';
+  let knobLearned = false;
+  try { knobLearned = localStorage.getItem(KNOB_KEY) === '1'; } catch (e) {}
+  const knobHints = [];
+  const learnKnobs = (e) => {
+    if (knobLearned || !e.target.closest || !e.target.closest('.knob-dial')) return;
+    knobLearned = true;
+    knobHints.forEach((el) => el.remove());
+    try { localStorage.setItem(KNOB_KEY, '1'); } catch (err) {}
+  };
+  document.addEventListener('pointerdown', learnKnobs, true);
+  document.addEventListener('keydown', learnKnobs, true);
+  function knobHint(o) {
+    if (knobLearned || o.compact) return null;
+    const el = h('div', { class: 'drag-hint knob-hint', 'aria-hidden': 'true' }, h('b', null, '⇕'), ' drag a knob up or down');
+    knobHints.push(el);
+    return el;
+  }
+
   SD.pedal = function (o) {
     const led = h('span', { class: 'led', 'aria-hidden': 'true' });
     const fs = h('button', { class: 'footswitch', type: 'button', 'aria-pressed': 'true', 'aria-label': `${o.name}: on/off`,
@@ -191,7 +211,7 @@
     const el = h('div', { class: 'pedal on' + (o.compact ? ' compact' : '') + (o.cls ? ' ' + o.cls : ''), style: o.color ? { '--c': o.color } : null },
       screws,
       o.top ? h('div', { class: 'pedal-top' }, o.top) : null,
-      o.knobs && o.knobs.length ? h('div', { class: 'pedal-knobs' }, o.knobs.map((k) => k.el || k)) : null,
+      o.knobs && o.knobs.length ? h('div', { class: 'pedal-knobs' }, knobHint(o), o.knobs.map((k) => k.el || k)) : null,
       o.middle || null,
       h('div', { class: 'pedal-name' }, h('b', null, o.name), o.sub ? h('small', null, o.sub) : null),
       h('div', { class: 'pedal-row' },

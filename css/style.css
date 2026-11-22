@@ -263,6 +263,8 @@ main { max-width: 1120px; margin: 0 auto; padding: 30px 20px 110px; }
   box-shadow: 0 3px 10px rgba(0,0,0,.35); white-space: nowrap; animation: nudge 1.4s ease-in-out infinite;
 }
 .drag-hint b { font-size: 15px; vertical-align: -1px; }
+.pedal-knobs { position: relative; }
+.knob-hint { top: -18px; }
 @keyframes nudge { 0%, 100% { transform: translate(-50%, -7px); } 50% { transform: translate(-50%, 9px); } }
 .treadle { cursor: grab; }
 .treadle.dragging { cursor: grabbing; }
