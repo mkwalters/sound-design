@@ -60,7 +60,7 @@
   }
 
   const cardSlot = h('div');
-  const statsBox = h('div', { class: 'quiz-stats', 'aria-live': 'polite' });
+  const statsBox = h('aside', { class: 'quiz-stats', 'aria-live': 'polite' });
   box.append(cardSlot, statsBox);
 
   function next() {
@@ -74,13 +74,9 @@
     const { q, opts } = cur;
     const fx = getFx(q);
     fx.setOn(true);
-    const tally = h('div', { class: 'quiz-tally' },
-      h('span', null, h('b', null, String(session.ok)), ` / ${session.n} right`),
-      h('span', null, 'streak ', h('b', null, String(session.streak))));
     const fb = h('div', { class: 'quiz-feedback', role: 'status' });
     const optBtns = opts.map((o) => h('button', { type: 'button', class: 'quiz-opt', style: { '--c': o.color } }, h('span', { class: 'sw' }), o.label));
     const card = h('div', { class: 'quiz-card' },
-      h('div', { class: 'quiz-top' }, h('span', { class: 'quiz-round' }, 'This session'), tally),
       h('p', { class: 'quiz-q' }, 'Which pedal is this?'),
       h('div', { class: 'quiz-play' },
         playBtn('Play mystery', ownerM, 'sparkle', () => fx.inputNode, q.src),
@@ -99,9 +95,6 @@
       fb.innerHTML = '';
       fb.append(h('b', null, ok ? 'Yes! ' : `It was ${q.label.toLowerCase()}. `), q.why, h('div', null, nextBtn));
       fb.classList.add('show');
-      tally.replaceWith(h('div', { class: 'quiz-tally' },
-        h('span', null, h('b', null, String(session.ok)), ` / ${session.n} right`),
-        h('span', null, 'streak ', h('b', null, String(session.streak)))));
       renderStats();
       nextBtn.focus({ preventScroll: true });
     }));
@@ -109,35 +102,38 @@
     cardSlot.append(card);
   }
 
-  // Weak spots: every pedal, worst accuracy first; ones not heard yet go last.
+  // A thin split bar: green share = right, red share = missed. Grey until something's been heard.
+  const split = (ok, n, cls) => h('span', { class: 'split' + (n ? '' : ' empty') + (cls ? ' ' + cls : ''), 'aria-hidden': 'true' },
+    h('i', { style: { width: (n ? Math.round((ok / n) * 100) : 0) + '%' } }));
+
+  // Side panel: session score on top, then every pedal, worst accuracy first; unheard ones go last.
   function renderStats() {
-    const rows = BANK.map((b) => ({ b, r: stats[b.id] || { n: 0, ok: 0, conf: {} } }));
-    const heard = rows.filter((x) => x.r.n);
+    const pct = session.n ? Math.round((session.ok / session.n) * 100) + '%' : '–';
     statsBox.innerHTML = '';
-    statsBox.append(h('h3', null, 'Your weak spots'),
-      h('p', { class: 'sub' }, heard.length ? 'Sorted by how often you miss them. Sounds you miss come up more often.' : 'Answer a few and this fills in, worst first.'));
-    if (!heard.length) return;
+    statsBox.append(
+      h('div', { class: 'qs-head' }, h('span', { class: 'qs-label' }, 'Session'),
+        h('span', { class: 'qs-score' }, h('b', null, pct), ` ${session.ok}/${session.n}`)),
+      split(session.ok, session.n, 'big'),
+      h('div', { class: 'qs-streak' }, session.streak > 1 ? `${session.streak} in a row` : ' '),
+      h('div', { class: 'qs-label qs-sub' }, 'By pedal'));
+    const rows = BANK.map((b) => ({ b, r: stats[b.id] || { n: 0, ok: 0, conf: {} } }));
     rows.sort((a, b) => {
       if (!a.r.n || !b.r.n) return (b.r.n ? 1 : 0) - (a.r.n ? 1 : 0);
       return a.r.ok / a.r.n - b.r.ok / b.r.n || (b.r.n - b.r.ok) - (a.r.n - a.r.ok);
     });
     rows.forEach(({ b, r }) => {
-      const acc = r.n ? r.ok / r.n : 0, miss = r.n - r.ok;
-      const weak = r.n >= 2 && acc < 0.6;
+      const weak = r.n >= 2 && r.ok / r.n < 0.6;
       const conf = Object.entries(r.conf).sort((x, y) => y[1] - x[1]);
-      let note = null;
-      if (!r.n) note = h('span', { class: 'stat-note' }, 'not heard yet');
-      else if (miss) note = h('span', { class: 'stat-note' },
-        'mistaken for ', conf.map(([id, c]) => `${byId[id].label.toLowerCase()} ×${c}`).join(', '), ' · ',
-        h('a', { href: '#' + STUDY[b.id] }, 'review →'));
-      statsBox.append(h('div', { class: 'stat-row' + (weak ? ' weak' : '') },
-        h('span', { class: 'stat-name' }, h('span', { class: 'sw', style: { '--c': b.color } }), b.label),
-        h('span', { class: 'stat-bar', 'aria-hidden': 'true' }, h('i', { style: { width: Math.round(acc * 100) + '%' } })),
-        h('span', { class: 'stat-num' }, r.n ? `${r.ok}/${r.n}` : '–'),
-        note));
+      const title = !r.n ? 'Not heard yet' : `${r.ok} of ${r.n} right` +
+        (conf.length ? ` · mistaken for ${conf.map(([id, c]) => `${byId[id].label.toLowerCase()} ×${c}`).join(', ')}` : '');
+      statsBox.append(h('div', { class: 'qs-row', title },
+        h('span', { class: 'qs-name' }, h('span', { class: 'sw', style: { '--c': b.color } }), b.label,
+          weak ? h('a', { class: 'qs-review', href: '#' + STUDY[b.id] }, 'review') : null),
+        h('span', { class: 'qs-num' }, r.n ? `${r.ok}/${r.n}` : '–'),
+        split(r.ok, r.n)));
     });
-    const reset = h('button', { type: 'button', class: 'stat-reset' }, 'Reset my stats');
-    reset.addEventListener('click', () => { stats = {}; save(); renderStats(); });
+    const reset = h('button', { type: 'button', class: 'stat-reset' }, 'Reset stats');
+    reset.addEventListener('click', () => { stats = {}; session = { n: 0, ok: 0, streak: 0 }; save(); renderStats(); });
     statsBox.append(reset);
   }
 
