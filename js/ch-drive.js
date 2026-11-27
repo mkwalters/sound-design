@@ -9,17 +9,40 @@
     { value: 'overdrive', label: 'Overdrive', tip: 'Soft, rounded clipping. Warm and bluesy.' },
     { value: 'distortion', label: 'Distortion', tip: 'Hard clipping and lots of gain. Tight rock and metal.' },
     { value: 'fuzz', label: 'Fuzz', tip: 'Extreme, lopsided clipping. The wave goes square. 60s buzz.' },
-  ], value: 'overdrive', onChange: (v) => { fx.set('mode', v); redraw(); } });
+  ], value: 'overdrive', part: 'clip', onChange: (v) => { fx.set('mode', v); redraw(); } });
   const pct = (v) => Math.round(v * 100) + '%';
-  const kDrive = SD.knob({ label: 'Drive', tip: 'How hard the signal slams into the ceiling. More = more grit.', min: 0, max: 1, value: 0.3, format: pct, onInput: (v) => { fx.set('drive', v); redraw(); } });
-  const kTone = SD.knob({ label: 'Tone', tip: 'Treble after the clipping. Low = warm, high = fizzy.', min: 0, max: 1, value: 0.55, format: (v) => (v < 0.35 ? 'dark ' : v > 0.7 ? 'bright ' : '') + pct(v), onInput: (v) => fx.set('tone', v) });
-  const kLevel = SD.knob({ label: 'Level', tip: 'Output volume. Match it to the bypass level for a fair comparison.', min: 0, max: 1, value: 0.7, format: pct, onInput: (v) => fx.set('level', v) });
+  const kDrive = SD.knob({ label: 'Drive', tip: 'How hard the signal slams into the ceiling. More = more grit.', min: 0, max: 1, value: 0.3, part: 'boost', format: pct, onInput: (v) => { fx.set('drive', v); redraw(); } });
+  const kTone = SD.knob({ label: 'Tone', tip: 'Treble after the clipping. Low = warm, high = fizzy.', min: 0, max: 1, value: 0.55, part: 'tone', format: (v) => (v < 0.35 ? 'dark ' : v > 0.7 ? 'bright ' : '') + pct(v), onInput: (v) => fx.set('tone', v) });
+  const kLevel = SD.knob({ label: 'Level', tip: 'Output volume. Match it to the bypass level for a fair comparison.', min: 0, max: 1, value: 0.7, part: 'level', format: pct, onInput: (v) => fx.set('level', v) });
+
+  const PRESETS = {
+    edge: { mode: 'overdrive', drive: 0.2, tone: 0.6, level: 0.75 },
+    crunch: { mode: 'overdrive', drive: 0.68, tone: 0.55, level: 0.7 },
+    gain: { mode: 'distortion', drive: 0.8, tone: 0.6, level: 0.65 },
+    wall: { mode: 'fuzz', drive: 0.75, tone: 0.42, level: 0.65 },
+  };
+  const presets = SD.presetBar({ options: [
+    { value: 'edge', label: 'Breakup', tip: 'Clean until you dig in. Only the loudest peaks get rounded.' },
+    { value: 'crunch', label: 'Crunch', tip: 'Classic rock rhythm: overdrive pushed hard.' },
+    { value: 'gain', label: 'High gain', tip: 'Tight, saturated distortion.' },
+    { value: 'wall', label: 'Wall of fuzz', tip: 'The wave is nearly square. Thick and buzzy.' },
+  ], apply: (v) => { const s = PRESETS[v]; mode.set(s.mode); kDrive.set(s.drive); kTone.set(s.tone); kLevel.set(s.level); } });
 
   const pedal = SD.pedal({ name: 'Hot Toast', sub: 'overdrive · distortion · fuzz', fx, knobs: [kDrive, kTone, kLevel], top: mode.el, onToggle: redraw });
 
   const transfer = SD.canvas({ label: 'Transfer curve', hint: 'how input maps to output', height: 230 });
   const waveC = SD.canvas({ label: 'One cycle', hint: 'shaded = clipped off', height: 230 });
   const harm = SD.canvas({ label: 'Harmonics added', hint: 'the “grit”', height: 150 });
+
+  const flow = SD.flow({ height: 68, on: () => pedal.on, draw(d) {
+    const y = 28;
+    d.io(12, y, 'in'); d.io(288, y, 'out');
+    d.wire([[16, y], [34, y]]); d.box(58, y, 48, 'boost', { part: 'boost', sub: 'louder' });
+    d.wire([[82, y], [92, y]]); d.box(116, y, 48, 'clip', { part: 'clip', sub: { overdrive: 'soft', distortion: 'hard', fuzz: 'lopsided' }[fx.params.mode] });
+    d.wire([[140, y], [150, y]]); d.box(174, y, 48, 'tone', { part: 'tone', sub: 'treble' });
+    d.wire([[198, y], [208, y]]); d.box(232, y, 48, 'level', { part: 'level', sub: 'volume' });
+    d.wire([[256, y], [283, y]]);
+  } });
 
   const curve = () => (pedal.on ? SD.driveCurve(fx.params.mode, fx.params.drive) : (x) => x);
   const font = '10px "DM Mono", monospace';
@@ -121,6 +144,6 @@
     SD.axisTitles(harm, fr, 'harmonic (× the note’s frequency)', 'dB vs note');
   };
 
-  SD.bench('drive', { label: 'Hot Toast drive', sources: ['riff', 'held', 'lick', 'sine'], source: 'riff', dest: () => fx.inputNode, pedal, graphs: [transfer, waveC, harm], graphLayout: 'two' });
+  SD.bench('drive', { label: 'Hot Toast drive', sources: ['riff', 'held', 'lick', 'sine'], source: 'riff', dest: () => fx.inputNode, pedal, flow, presets, graphs: [transfer, waveC, harm], graphLayout: 'two' });
   harm.el.style.gridColumn = '1 / -1';
 })();

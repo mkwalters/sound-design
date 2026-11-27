@@ -65,6 +65,22 @@
     if (e.key === 'ArrowRight') { go(cur + 1); e.preventDefault(); }
     if (e.key === 'ArrowLeft') { go(cur - 1); e.preventDefault(); }
   });
+  // Space = play/stop this page's demo, B = bypass (stomp) its pedal.
+  // A button reached with Tab keeps Space for itself; one that was merely clicked does not.
+  let tabbing = false;
+  addEventListener('keydown', (e) => { if (e.key === 'Tab') tabbing = true; }, true);
+  addEventListener('pointerdown', () => { tabbing = false; }, true);
+  const ownsKey = (t) => !!(t.closest && (t.closest('input, textarea, select') || (tabbing && t.closest('button, a'))));
+  addEventListener('keydown', (e) => {
+    if (e.altKey || e.ctrlKey || e.metaKey || ownsKey(e.target)) return;
+    const ctl = SD.pageCtl[ids[cur]] || {};
+    if (e.key === ' ') {
+      e.preventDefault();
+      if (e.repeat) return;
+      if (ctl.play) ctl.play(); else if (cur === 0) go(1);
+    } else if ((e.key === 'b' || e.key === 'B') && ctl.bypass && !e.repeat) ctl.bypass();
+  });
+  addEventListener('keyup', (e) => { if (e.key === ' ' && !ownsKey(e.target)) e.preventDefault(); });
 
   // ---- dock ----
   const dock = document.getElementById('dock');

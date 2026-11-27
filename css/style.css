@@ -263,31 +263,60 @@ main { max-width: 1120px; margin: 0 auto; padding: 30px 20px 110px; }
   box-shadow: 0 3px 10px rgba(0,0,0,.35); white-space: nowrap; animation: nudge 1.4s ease-in-out infinite;
 }
 .drag-hint b { font-size: 15px; vertical-align: -1px; }
-.pedal-knobs { position: relative; }
-.knob-hint { top: -18px; }
 @keyframes nudge { 0%, 100% { transform: translate(-50%, -7px); } 50% { transform: translate(-50%, 9px); } }
 .treadle { cursor: grab; }
 .treadle.dragging { cursor: grabbing; }
 .treadle:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
 .treadle-readout { margin-top: 24px; font-family: var(--mono); font-size: 12px; background: rgba(251,248,241,.88); color: var(--ink); border-radius: 6px; padding: 0 8px; }
-.pedal.wah { width: 390px; }
+.pedal.wah, .pedal.wide { width: 390px; }
 .wah-row { display: flex; align-items: center; justify-content: center; gap: 18px; width: 100%; }
 .wah-ctls { display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .wah-row .treadle { width: 130px; height: 120px; }
 @media (max-width: 440px) { .wah-row { flex-direction: column; } }
 
 /* ---------- board ---------- */
-.order-line { font-family: var(--mono); font-size: 14px; margin: 0 0 14px 70px; line-height: 2.1; }
-.order-line span { background: var(--c); color: #fff; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.order-line, .cheat-order { font-family: var(--mono); font-size: 13.5px; margin: 0 0 14px 70px; line-height: 2.2; }
 @media (max-width: 640px) { .order-line { margin-left: 0; } }
-.board-top { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.ol-chip { border: 1.5px solid color-mix(in oklab, var(--c) 55%, var(--paper)); color: color-mix(in oklab, var(--c) 70%, black); padding: 2px 10px; border-radius: 999px; white-space: nowrap; transition: background .2s, color .2s, border-color .2s; }
+.ol-chip.on { background: var(--c); border-color: var(--c); color: #fff; }
+.ol-lbl, .ol-arrow { color: var(--ink-3); }
+.ol-arrow { margin: 0 5px; }
+.ol-note { margin-left: 14px; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
+.cheat-order { margin: 26px 0 0; text-align: center; }
+.cheat-order span { background: var(--c); color: #fff; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.cheat-order .lbl { background: none; color: var(--ink-3); padding: 0; margin-right: 8px; font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; }
+
+/* board on the left (two rows of four), output graphs stacked beside it; one long row on very wide screens */
+.board-main { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: start; }
+.board-top { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (max-width: 1100px) {
+  .board-main { grid-template-columns: minmax(0, 1fr); }
+  .board-top { grid-template-columns: 1fr 1fr; order: -1; }
+}
 @media (max-width: 700px) { .board-top { grid-template-columns: 1fr; } }
+@media (min-width: 1541px) {
+  .page-wide .bench-board { width: min(calc(100vw - 40px), 1540px); position: relative; left: 50%; translate: -50% 0; }
+  .board-main { grid-template-columns: minmax(0, 1fr); }
+  .board-top { grid-template-columns: 1fr 1fr; order: -1; }
+}
 .board-presets { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
 .board-presets .lbl { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
-.board { background: linear-gradient(#4a413b, #383029); border-radius: 18px; padding: 20px 16px 22px; box-shadow: inset 0 2px 0 rgba(255,255,255,.06), inset 0 -4px 0 rgba(0,0,0,.22); position: relative; overflow-x: auto; }
-.board-row { display: flex; gap: 14px; align-items: stretch; width: max-content; margin: 0 auto; padding: 4px 4px 2px; }
-.board-io { display: flex; flex-direction: column; justify-content: center; align-items: center; color: #e3d7bf; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; gap: 6px; width: 46px; }
-.board-io .io-icon { font-size: 26px; }
+.board { background: linear-gradient(#4a413b, #383029); border-radius: 18px; padding: 20px 16px 18px; box-shadow: inset 0 2px 0 rgba(255,255,255,.06), inset 0 -4px 0 rgba(0,0,0,.22); position: relative; }
+.board-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 22px 14px; align-items: stretch; max-width: 760px; margin: 0 auto; padding: 4px 0 2px; }
+.board-sp { display: none; width: 36px; }
+@media (min-width: 880px) and (max-width: 1540px) { .board-sp { display: block; } }
+@media (min-width: 1541px) { .board-row { max-width: none; flex-wrap: nowrap; } }
+.board-io { position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #e3d7bf; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; gap: 6px; width: 36px; }
+.board-io .io-icon .ico { width: 28px; height: 28px; stroke-width: 1.5; display: block; }
+/* patch cables: a short lead from each box back to the one before it */
+.board-row > .pedal.compact::before, .board-row > .board-io:last-child::before {
+  content: ""; position: absolute; left: -14px; top: 50%; width: 14px; height: 5px; margin-top: -2px; background: #1d1816; box-shadow: 0 1px 0 rgba(255,255,255,.07);
+}
+.board .pedal.compact { cursor: grab; transition: transform .12s, box-shadow .12s; }
+.board .pedal.compact.dragging { cursor: grabbing; transform: translateY(-7px) rotate(-1.5deg); z-index: 2;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.28), inset 0 -3px 0 rgba(0,0,0,.14), 0 9px 0 -1px color-mix(in oklab, var(--c) 55%, black), 0 26px 34px rgba(0,0,0,.45); }
+.board-row.sorting { cursor: grabbing; }
+.board-row.sorting .pedal.compact:not(.dragging) { filter: saturate(.8) brightness(.94); }
 .pedal.compact { width: 150px; padding: 16px 10px 14px; gap: 10px; border-radius: 14px; }
 .pedal.compact .pedal-name { padding: 4px 6px 3px; min-width: 0; width: 100%; }
 .pedal.compact .pedal-name b { font-size: 13.5px; }
@@ -298,7 +327,8 @@ main { max-width: 1120px; margin: 0 auto; padding: 30px 20px 110px; }
 .pedal.compact .footswitch::after { inset: 11px; }
 .pedal.compact .screw { width: 8px; height: 8px; }
 .pedal.compact .screw::after { top: 3.5px; }
-.pedal.compact .seg.small .seg-btn { padding: 3px 6px; font-size: 11px; }
+.pedal.compact .seg.small { flex-wrap: nowrap; }
+.pedal.compact .seg.small .seg-btn { padding: 3px 5px; font-size: 10.5px; }
 .move-btns { display: flex; gap: 6px; }
 .move-btn { border: 0; width: 28px; height: 24px; border-radius: 7px; background: rgba(0,0,0,.22); color: #fff; cursor: pointer; font-size: 13px; line-height: 1; }
 .move-btn:hover { background: rgba(0,0,0,.38); }
@@ -424,3 +454,100 @@ main { max-width: 1120px; margin: 0 auto; padding: 30px 20px 110px; }
 .qs-num { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
 .qs-review { margin-left: 2px; font: 500 10px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--c-intro); }
 .stat-reset { margin-top: 8px; background: none; border: 0; color: var(--ink-3); font-size: 12px; text-decoration: underline; cursor: pointer; padding: 0; }
+
+/* ---------- icons & glyphs ---------- */
+.ico { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.2em; flex: none; }
+.chip .ico, .hero-note .ico { margin-right: 6px; }
+.dock-vol .ico { width: 17px; height: 17px; }
+.glyph { width: 72px; height: 28px; display: block; fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+.glyph .ghost { opacity: .45; stroke-width: 1.5; stroke-dasharray: 2.5 3.5; }
+.glyph .soft { opacity: .4; }
+.glyph .fill { fill: var(--c); stroke: none; }
+.glyph .ghost-fill { fill: var(--c); stroke: none; opacity: .28; }
+.glyph .wash { fill: var(--c); stroke: none; opacity: .45; }
+.cheat-card .glyph { margin: 0 0 10px; }
+.quiz-feedback .glyph { float: right; margin: 2px 0 6px 14px; }
+
+/* ---------- keyboard focus ---------- */
+:where(button, a, label.dock-file):focus-visible { outline: 2.5px solid var(--ink); outline-offset: 2px; }
+:where(.pedal, .board, .dock, .tip) :where(button, a):focus-visible { outline-color: #fff; }
+.progress button:focus-visible { outline-offset: -1px; }
+
+/* ---------- hero extras ---------- */
+.keys { margin: 26px 0 0; font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+.keys kbd { font: 500 11px/1 var(--mono); color: var(--ink-2); background: var(--card); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; padding: 3px 7px; margin: 0 2px 0 20px; display: inline-block; }
+.keys kbd + kbd { margin-left: -4px; }
+.keys kbd:first-child { margin-left: 0; }
+@media (hover: none) { .keys { display: none; } }
+/* a little pulse of signal running down the cable behind the pedals */
+.mini-board::after {
+  content: ""; position: absolute; top: 50%; left: 10px; width: 46px; height: 3px; z-index: 0; border-radius: 2px;
+  background: linear-gradient(90deg, transparent, #e8b76a 60%, transparent); animation: travel 3.6s linear infinite;
+}
+@keyframes travel { from { left: 10px; } to { left: calc(100% - 56px); } }
+@media (max-width: 760px) { .mini-board::after { display: none; } }
+
+/* ---------- first-visit knob hint: caption + a wiggle on the first dial ---------- */
+.knob-hint { margin: -4px 0 -2px; font: 600 11.5px/1 var(--body); color: #fff; background: rgba(0,0,0,.24); padding: 5px 11px; border-radius: 999px; transition: opacity .5s; }
+.knob-hint b { font-size: 13px; }
+.knob-hint.gone { opacity: 0; }
+.pedal.hinting .pedal-knobs .knob:first-child .knob-dial::after { animation: wiggle 2.8s ease-in-out infinite; }
+@keyframes wiggle { 0%, 55%, 100% { rotate: 0deg; } 66% { rotate: -18deg; } 78% { rotate: 16deg; } 89% { rotate: -6deg; } }
+
+/* ---------- presets row ---------- */
+.preset-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-left: 6px; }
+.preset-bar .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+
+/* ---------- signal-path diagram ---------- */
+.bench-pedal { flex-direction: column; align-items: center; gap: 14px; }
+.flow { width: 0; min-width: 100%; max-width: 390px; padding: 10px 8px 6px; }
+.flow figcaption { padding: 0 4px; }
+.bench-graphs .flow { width: auto; min-width: 0; max-width: none; }
+.bench-graphs.two .flow { grid-column: 1 / -1; }
+.bench-graphs .flow svg { max-width: 384px; margin: 0 auto; }
+.pedal.wide .pedal-knobs { gap: 12px 8px; }
+.flow svg { display: block; width: 100%; height: auto; overflow: visible; font-family: var(--body); }
+.flow .fw { fill: none; stroke: var(--ink-2); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.flow .fa { fill: var(--ink-2); }
+.flow .fw.ctl { stroke: var(--accent); stroke-dasharray: 3 3; }
+.flow .fa.ctl { fill: var(--accent); }
+.flow .fw.dim, .flow .fa.dim { opacity: .25; }
+.flow .fw.pulse { stroke: var(--accent); stroke-width: 3; stroke-dasharray: 1 13; opacity: 0; }
+.flow.playing .fw.pulse { opacity: 1; animation: march .6s linear infinite; }
+@keyframes march { to { stroke-dashoffset: -14; } }
+.flow .fb rect, .flow .fb circle { fill: var(--card); stroke: var(--accent); stroke-width: 1.5; transition: fill .12s; }
+.flow .fb.ctl rect { stroke-dasharray: 4 3; }
+.flow .fb text { font-size: 11.5px; font-weight: 600; fill: var(--ink); text-anchor: middle; transition: fill .12s; }
+.flow .fb.sum path { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; }
+.flow .fb.hot rect, .flow .fb.hot circle { fill: var(--accent); stroke-dasharray: none; }
+.flow .fb.hot text { fill: #fff; }
+.flow .fb.hot path { stroke: #fff; }
+.flow .fw.hot { stroke-width: 2.6; opacity: 1; }
+.flow .fa.hot { opacity: 1; }
+.flow .fs { font-family: var(--mono); font-size: 9.5px; fill: var(--ink-3); }
+.flow .fs.ctl { fill: color-mix(in oklab, var(--accent) 78%, black); }
+.flow .fio { font-family: var(--mono); font-size: 8.5px; letter-spacing: .1em; text-transform: uppercase; fill: var(--ink-3); text-anchor: middle; }
+.flow .fd { fill: var(--ink-2); }
+.flow svg.off .fbody { opacity: .28; }
+.flow svg.off .pulse { display: none; }
+.flow .fbypass rect { fill: var(--card); stroke: var(--line); }
+.flow .fbypass text { font-family: var(--mono); font-size: 9.5px; fill: var(--ink-2); text-anchor: middle; }
+/* a knob lights up with its block, and the other way round */
+.knob.hot .knob-dial { box-shadow: 0 0 0 3px rgba(255,255,255,.85), 0 3px 0 #8c7b5b, 0 6px 10px rgba(0,0,0,.24); }
+.seg.hot { box-shadow: 0 0 0 2px rgba(255,255,255,.8); }
+.treadle.hot { border-color: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mini-board::after, .pedal.hinting .knob-dial::after, .flow.playing .fw.pulse { animation: none; }
+  .mini-board::after { display: none; }
+}
+
+/* ---------- small screens: chain line wraps, board fits two pedals a row ---------- */
+.order-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 0; line-height: 1.5; }
+@media (max-width: 480px) {
+  .board { padding: 14px 8px 14px; }
+  .board-row { gap: 18px 10px; }
+  .pedal.compact { width: 142px; padding: 16px 7px 14px; }
+  .board-io { display: none; }
+  .board-row > .pedal.compact::before, .board-row > .board-io:last-child::before { left: -10px; width: 10px; }
+}

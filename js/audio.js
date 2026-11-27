@@ -125,10 +125,14 @@
       const names = [];
       ZONES.forEach(([, , n]) => { names.push(n); if (HAS_SOFT.has(n)) names.push(n + '_soft'); });
       HAS_RR2.forEach((n) => names.push(n + '_rr2'));
+      // FLAC first (lossless, a third of the size); the identical WAV is the fallback for browsers that can't decode it.
+      const load = async (n, ext) => {
+        const res = await fetch('assets/guitar/' + n + ext);
+        if (!res.ok) throw new Error('missing sample ' + n + ext);
+        return ctx.decodeAudioData(await res.arrayBuffer());
+      };
       guitarPromise = Promise.all(names.map(async (n) => {
-        const res = await fetch('assets/guitar/' + n + '.wav');
-        if (!res.ok) throw new Error('missing sample ' + n);
-        samples[n] = await ctx.decodeAudioData(await res.arrayBuffer());
+        try { samples[n] = await load(n, '.flac'); } catch (e) { samples[n] = await load(n, '.wav'); }
       }));
       guitarPromise.catch(() => { guitarPromise = null; });
     }
@@ -326,8 +330,8 @@
     blip: { label: 'Blip', synth: true, build: buildBlip },
     pulses: { label: 'Loud & soft', synth: true, build: buildPulses },
     drums: { label: 'Drum loop', synth: true, build: buildDrums },
-    user: { label: 'Your audio', extra: true, available: () => !!userBuffer },
-    live: { label: '🎸 Live input', extra: true, live: true, available: () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) },
+    user: { label: 'Your audio', icon: 'file', extra: true, available: () => !!userBuffer },
+    live: { label: 'Live input', icon: 'plug', extra: true, live: true, available: () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) },
   };
   /* Returns a Promise<AudioBuffer> for buffer-based sources (guitar phrases are rendered on demand). */
   SD.ensureBuffer = (id) => {
@@ -344,7 +348,7 @@
     const arr = await file.arrayBuffer();
     userBuffer = await ctx.decodeAudioData(arr);
     userName = file.name.replace(/\.[^.]+$/, '');
-    SD.sources.user.label = '📁 ' + (userName.length > 18 ? userName.slice(0, 17) + '…' : userName);
+    SD.sources.user.label = (userName.length > 18 ? userName.slice(0, 17) + '…' : userName);
     sourceListeners.forEach((fn) => fn());
   };
   // Warm the cache in idle time so the first click is instant.

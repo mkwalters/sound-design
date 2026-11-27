@@ -11,16 +11,31 @@
     jet: { rate: 0.08, depth: 0.95, delay: 3.5, feedback: 0.88, mix: 0.5 },
   };
   const ms = (v) => (v < 10 ? v.toFixed(1) : Math.round(v)) + ' ms';
-  const kRate = SD.knob({ label: 'Rate', tip: 'Speed of the wobble.', min: 0.05, max: 5, value: 0.8, scale: 'log', small: true, format: (v) => v.toFixed(2) + ' Hz', onInput: (v) => fx.set('rate', v) });
-  const kDepth = SD.knob({ label: 'Depth', tip: 'How far the delay sways. More = more detuned.', min: 0, max: 1, value: 0.5, small: true, format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('depth', v) });
-  const kDelay = SD.knob({ label: 'Delay', tip: 'Gap between the original and the copy. Short = flanger, long = chorus.', min: 0.5, max: 30, value: 18, scale: 'log', small: true, format: ms, onInput: (v) => fx.set('delay', v) });
-  const kFb = SD.knob({ label: 'Feedback', tip: 'Feeds the copy back in. More = sharper, more metallic.', min: -0.9, max: 0.9, value: 0, small: true, format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('feedback', v) });
-  const kMix = SD.knob({ label: 'Mix', tip: 'Original vs. copy. 50% gives the strongest effect.', min: 0, max: 1, value: 0.5, small: true, format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('mix', v) });
+  const kRate = SD.knob({ label: 'Rate', tip: 'Speed of the wobble.', min: 0.05, max: 5, value: 0.8, scale: 'log', small: true, part: 'lfo', format: (v) => v.toFixed(2) + ' Hz', onInput: (v) => fx.set('rate', v) });
+  const kDepth = SD.knob({ label: 'Depth', tip: 'How far the delay sways. More = more detuned.', min: 0, max: 1, value: 0.5, small: true, part: 'lfo', format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('depth', v) });
+  const kDelay = SD.knob({ label: 'Delay', tip: 'Gap between the original and the copy. Short = flanger, long = chorus.', min: 0.5, max: 30, value: 18, scale: 'log', small: true, part: 'delay', format: ms, onInput: (v) => fx.set('delay', v) });
+  const kFb = SD.knob({ label: 'Feedback', tip: 'Feeds the copy back in. More = sharper, more metallic.', min: -0.9, max: 0.9, value: 0, small: true, part: 'fb', format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('feedback', v) });
+  const kMix = SD.knob({ label: 'Mix', tip: 'Original vs. copy. 50% gives the strongest effect.', min: 0, max: 1, value: 0.5, small: true, part: 'mix', format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('mix', v) });
   const knobs = { rate: kRate, depth: kDepth, delay: kDelay, feedback: kFb, mix: kMix };
   const preset = SD.segmented({ label: 'Preset', options: [{ value: 'chorus', label: 'Chorus', tip: 'Long delay, no feedback: lush shimmer.' }, { value: 'flanger', label: 'Flanger', tip: 'Tiny delay plus feedback: whoosh.' }, { value: 'jet', label: 'Jet plane', tip: 'An extreme, slow flanger.' }],
     value: 'chorus', onChange: (v) => Object.entries(PRESETS[v]).forEach(([k, val]) => knobs[k].set(val)) });
 
-  const pedal = SD.pedal({ name: 'Shimmer Twins', sub: 'chorus · flanger', fx, top: preset.el, knobs: Object.values(knobs) });
+  const pedal = SD.pedal({ name: 'Shimmer Twins', sub: 'chorus · flanger', fx, cls: 'wide', top: preset.el, knobs: Object.values(knobs) });
+
+  const flow = SD.flow({ height: 124, on: () => pedal.on, draw(d) {
+    const y = 24, y2 = 66, y3 = 106, p = fx.params, hasFb = Math.abs(p.feedback) > 0.02;
+    d.io(12, y, 'in'); d.io(288, y, 'out'); d.dot(38, y);
+    d.wire([[16, y], [241, y]]); d.note(140, y - 7, 'original');
+    d.wire([[38, y], [38, y2], [84, y2]]);
+    d.box(132, y2, 96, `delay · ${ms(p.delay)}`, { part: 'delay' });
+    d.wire([[180, y2], [250, y2], [250, y + 9]]);
+    d.sum(250, y, 'mix'); d.wire([[259, y], [283, y]]);
+    d.wire([[206, y2], [206, y2 - 21], [62, y2 - 21], [62, y2 - 3]], { ctl: true, part: 'fb', dim: !hasFb });
+    d.note(134, y2 - 25, hasFb ? `feedback ${Math.round(p.feedback * 100)}%` : 'feedback (off)', { ctl: hasFb });
+    d.box(132, y3, 96, `LFO · ${p.rate.toFixed(2)} Hz`, { part: 'lfo', ctl: true });
+    d.wire([[132, y3 - 12], [132, y2 + 13]], { ctl: true });
+    d.note(140, y3 - 17, 'wobbles it', { anchor: 'start', ctl: true });
+  } });
 
   const dly = SD.canvas({ label: 'Delay time', hint: 'wobbled by the LFO', height: 150 });
   const comb = SD.canvas({ label: 'Frequency response', hint: 'the comb filter', height: 240 });
@@ -46,7 +61,6 @@
     g.beginPath(); g.arc(last[0], last[1], 5, 0, Math.PI * 2); g.fillStyle = accent; g.fill();
   };
 
-    const SUB = 8; // sub-samples per pixel column
   comb.draw = () => {
     if (!comb.w) return;
     const fr = SD.freqFrame(comb, { dbMin: -30, dbMax: 18, dbStep: 6 });
@@ -62,13 +76,15 @@
       const dr = (cr * denR + ci * denI) / den, di = (ci * denR - cr * denI) / den;
       return SD.clamp(SD.gainToDb(Math.hypot(dg + wg * dr, wg * di)), -32, 20);
     };
+    // Exact min/max over each pixel column: the comb's extremes sit where the delayed copy is exactly in or out
+    // of phase (every half turn), so check the column's two edges plus any half turns that fall inside it.
     const top = [], bot = [];
     for (let c = 0; c <= cols; c++) {
-      let mn = 99, mx = -99;
-      for (let k = 0; k < SUB; k++) {
-        const f = 20 * Math.pow(1000, (c + k / SUB) / cols);
-        const v = resp(f); if (v < mn) mn = v; if (v > mx) mx = v;
-      }
+      const f0 = 20 * Math.pow(1000, c / cols), f1 = 20 * Math.pow(1000, (c + 1) / cols);
+      let mn = Math.min(resp(f0), resp(f1)), mx = Math.max(resp(f0), resp(f1));
+      const h0 = Math.ceil(2 * f0 * tau), h1 = Math.floor(2 * f1 * tau);
+      if ((f1 - f0) * tau > 0.3) { mn = Math.min(resp(0.5 / tau), resp(1 / tau)); mx = Math.max(resp(0.5 / tau), resp(1 / tau)); } // teeth closer than ~3 px: draw the solid band
+      else for (let k = h0; k <= Math.min(h1, h0 + 1); k++) { const v = resp(k / (2 * tau)); if (v < mn) mn = v; if (v > mx) mx = v; }
       top.push([x0 + c, fr.y(mx)]); bot.push([x0 + c, fr.y(mn)]);
     }
     // band between min and max: where teeth are denser than a pixel it reads as a solid band
@@ -83,5 +99,5 @@
   };
   SD.onFrame(() => { dly.draw(); comb.draw(); }, document.getElementById('bench-chorus'));
 
-  SD.bench('chorus', { label: 'Shimmer Twins', sources: ['arp', 'held', 'lick', 'saw', 'drums'], source: 'arp', dest: () => fx.inputNode, pedal, graphs: [dly, comb] });
+  SD.bench('chorus', { label: 'Shimmer Twins', sources: ['arp', 'held', 'lick', 'saw', 'drums'], source: 'arp', dest: () => fx.inputNode, pedal, flow, graphs: [dly, comb] });
 })();

@@ -7,11 +7,11 @@
 
   const db = (v) => (v > 0 ? '+' : '') + Math.round(v) + ' dB';
   const ms = (v) => (v < 0.01 ? (v * 1000).toFixed(1) : Math.round(v * 1000)) + ' ms';
-  const kThr = SD.knob({ label: 'Threshold', tip: 'The volume line. Anything louder gets squashed.', min: -60, max: 0, value: -40, format: db, onInput: (v) => { fx.set('threshold', v); curve.draw(); } });
-  const kRatio = SD.knob({ label: 'Ratio', tip: 'How hard it squashes. At 4:1, going 4 dB over the line comes out only 1 dB over.', min: 1, max: 20, value: 10, scale: 'log', format: (v) => (v >= 19.5 ? '20:1 (limit)' : v.toFixed(v < 3 ? 1 : 0) + ':1'), onInput: (v) => { fx.set('ratio', v); curve.draw(); } });
-  const kAtk = SD.knob({ label: 'Attack', tip: 'How fast it grabs. Slow lets the pick “snap” through first.', min: 0.001, max: 0.2, value: 0.003, scale: 'log', format: ms, onInput: (v) => fx.set('attack', v) });
-  const kRel = SD.knob({ label: 'Release', tip: 'How fast it lets go once the note gets quieter.', min: 0.03, max: 1, value: 0.25, scale: 'log', format: ms, onInput: (v) => fx.set('release', v) });
-  const kOut = SD.knob({ label: 'Output', tip: 'Make‑up volume to win back what the squashing took.', min: -12, max: 12, value: 7, format: db, onInput: (v) => fx.set('makeup', v) });
+  const kThr = SD.knob({ label: 'Threshold', tip: 'The volume line. Anything louder gets squashed.', min: -60, max: 0, value: -40, part: 'detect', format: db, onInput: (v) => { fx.set('threshold', v); curve.draw(); } });
+  const kRatio = SD.knob({ label: 'Ratio', tip: 'How hard it squashes. At 4:1, going 4 dB over the line comes out only 1 dB over.', min: 1, max: 20, value: 10, scale: 'log', part: 'detect', format: (v) => (v >= 19.5 ? '20:1 (limit)' : v.toFixed(v < 3 ? 1 : 0) + ':1'), onInput: (v) => { fx.set('ratio', v); curve.draw(); } });
+  const kAtk = SD.knob({ label: 'Attack', tip: 'How fast it grabs. Slow lets the pick “snap” through first.', min: 0.001, max: 0.2, value: 0.003, scale: 'log', part: 'vca', format: ms, onInput: (v) => fx.set('attack', v) });
+  const kRel = SD.knob({ label: 'Release', tip: 'How fast it lets go once the note gets quieter.', min: 0.03, max: 1, value: 0.25, scale: 'log', part: 'vca', format: ms, onInput: (v) => fx.set('release', v) });
+  const kOut = SD.knob({ label: 'Output', tip: 'Make‑up volume to win back what the squashing took.', min: -12, max: 12, value: 7, part: 'makeup', format: db, onInput: (v) => fx.set('makeup', v) });
 
   const leds = Array.from({ length: 12 }, () => h('i'));
   const grText = h('span', null, '0 dB');
@@ -19,6 +19,30 @@
     h('div', { class: 'gr-label' }, h('span', null, 'GAIN REDUCTION'), grText), h('div', { class: 'gr-leds' }, leds));
 
   const pedal = SD.pedal({ name: 'Squeezebox', sub: 'compressor', fx, knobs: [kThr, kRatio, kAtk, kRel, kOut], middle: meter });
+
+  const PRESETS = {
+    gentle: { thr: -26, ratio: 3, atk: 0.012, rel: 0.2, out: 3 },
+    squish: { thr: -42, ratio: 8, atk: 0.002, rel: 0.15, out: 9 },
+    snap: { thr: -40, ratio: 10, atk: 0.07, rel: 0.2, out: 2 },
+    limit: { thr: -28, ratio: 20, atk: 0.001, rel: 0.1, out: 6 },
+  };
+  const presets = SD.presetBar({ options: [
+    { value: 'gentle', label: 'Gentle', tip: 'Light smoothing you feel more than hear.' },
+    { value: 'squish', label: 'Squish', tip: 'Heavy, fast squeeze: the country and funk “pop”, with long sustain.' },
+    { value: 'snap', label: 'Slow attack', tip: 'The pick snaps through before the squeeze lands.' },
+    { value: 'limit', label: 'Limiter', tip: 'A hard ceiling: nothing gets past the threshold.' },
+  ], apply: (v) => { const s = PRESETS[v]; kThr.set(s.thr); kRatio.set(s.ratio); kAtk.set(s.atk); kRel.set(s.rel); kOut.set(s.out); } });
+
+  const flow = SD.flow({ height: 104, on: () => pedal.on, draw(d) {
+    const y = 26, y2 = 76;
+    d.io(12, y, 'in'); d.io(288, y, 'out'); d.dot(38, y);
+    d.wire([[16, y], [102, y]]); d.box(138, y, 68, 'volume', { part: 'vca' });
+    d.wire([[172, y], [190, y]]); d.box(222, y, 60, 'make‑up', { part: 'makeup' });
+    d.wire([[252, y], [283, y]]);
+    d.wire([[38, y], [38, y2], [52, y2]], { ctl: true }); d.box(88, y2, 68, 'listener', { part: 'detect', ctl: true, sub: `over ${Math.round(fx.params.threshold)} dB?` });
+    d.wire([[122, y2], [138, y2], [138, y + 13]], { ctl: true });
+    d.note(146, 58, 'turns it down', { anchor: 'start', ctl: true });
+  } });
 
   const curve = SD.canvas({ label: 'Transfer curve', hint: 'in dB', height: 220 });
   const hist = SD.canvas({ label: 'Level over time', hint: 'grey = in · color = out', height: 220 });
@@ -130,5 +154,5 @@
     curve.draw(); hist.draw();
   }, document.getElementById('bench-comp'));
 
-  const bench = SD.bench('comp', { label: 'Squeezebox compressor', sources: ['dynamic', 'note', 'funk', 'pulses', 'drums'], source: 'dynamic', dest: () => fx.inputNode, pedal, graphs: [curve, hist], graphLayout: 'two' });
+  const bench = SD.bench('comp', { label: 'Squeezebox compressor', sources: ['dynamic', 'note', 'funk', 'pulses', 'drums'], source: 'dynamic', dest: () => fx.inputNode, pedal, flow, flowIn: 'graphs', presets, graphs: [curve, hist], graphLayout: 'two' });
 })();

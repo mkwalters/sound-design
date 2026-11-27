@@ -60,21 +60,35 @@
     left.addEventListener('click', () => move(id, -1));
     right.addEventListener('click', () => move(id, +1));
     const pedal = SD.pedal({ name: d.name, sub: d.sub, color: d.color, fx, compact: true, startOff: true, top: seg ? seg.el : null,
-      knobs: Object.values(controls).filter((c) => c !== seg), bottom: h('div', { class: 'move-btns' }, left, right) });
+      knobs: Object.values(controls).filter((c) => c !== seg), bottom: h('div', { class: 'move-btns' }, left, right), onToggle: () => renderChain() });
     units[id] = { id, fx, pedal, controls, left, right };
   });
 
   let order = STD.slice();
   const row = h('div', { class: 'board-row' });
+  // The chain, spelled out above the board: lit chips are switched on, in the order the signal meets them.
+  const chain = document.getElementById('order-line');
+  const SHORT = { wah: 'wah', comp: 'comp', drive: 'drive', chorus: 'chorus', phaser: 'phaser', trem: 'tremolo', delay: 'delay', reverb: 'reverb' };
+  function renderChain() {
+    chain.innerHTML = '';
+    chain.append(h('span', { class: 'ol-lbl' }, 'guitar'));
+    order.forEach((id) => chain.append(h('span', { class: 'ol-arrow', 'aria-hidden': 'true' }, '→'),
+      h('span', { class: 'ol-chip' + (units[id].pedal.on ? ' on' : ''), style: { '--c': DEFS[id].color } }, SHORT[id])));
+    chain.append(h('span', { class: 'ol-arrow', 'aria-hidden': 'true' }, '→'), h('span', { class: 'ol-lbl' }, 'amp'),
+      h('span', { class: 'ol-note' }, order.join() === STD.join() ? 'the classic order' : 'your own order'));
+  }
   function render() {
     row.innerHTML = '';
-    row.append(h('div', { class: 'board-io' }, h('span', { class: 'io-icon', 'aria-hidden': 'true' }, '🎸'), 'in'));
+    row.append(h('div', { class: 'board-io' }, h('span', { class: 'io-icon' }, SD.icon('guitar')), 'in'));
     order.forEach((id, i) => {
       const u = units[id];
       u.left.disabled = i === 0; u.right.disabled = i === order.length - 1;
+      // two spacers at the half-way point keep the pedals in columns when the board shows as two rows of four
+      if (i === order.length / 2) row.append(h('span', { class: 'board-sp' }), h('span', { class: 'board-sp' }));
       row.append(u.pedal.el);
     });
-    row.append(h('div', { class: 'board-io' }, h('span', { class: 'io-icon', 'aria-hidden': 'true' }, '🔊'), 'amp'));
+    row.append(h('div', { class: 'board-io' }, h('span', { class: 'io-icon' }, SD.icon('amp')), 'amp'));
+    renderChain();
   }
   function wire() {
     input.disconnect();
@@ -93,6 +107,37 @@
     (dir < 0 ? units[id].left : units[id].right).focus();
     presetSeg.set(null, true);
   }
+
+  // Drag a pedal by its body to reorder (mouse or pen; on touch the arrows do it, so the page can still scroll).
+  let drag = null;
+  row.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0 || e.pointerType === 'touch') return;
+    const el = e.target.closest('.pedal.compact');
+    if (!el || e.target.closest('.knob, button, .seg')) return;
+    drag = { id: order.find((k) => units[k].pedal.el === el), el, x: e.clientX, y: e.clientY, active: false, changed: false };
+  });
+  addEventListener('pointermove', (e) => {
+    if (!drag) return;
+    if (!drag.active) {
+      if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 6) return;
+      drag.active = true; drag.el.classList.add('dragging'); row.classList.add('sorting');
+    }
+    const over = document.elementFromPoint(e.clientX, e.clientY);
+    const tEl = over && over.closest('.pedal.compact');
+    if (!tEl || tEl === drag.el || !row.contains(tEl)) return;
+    const i = order.indexOf(drag.id), j = order.findIndex((k) => units[k].pedal.el === tEl);
+    order.splice(i, 1); order.splice(j, 0, drag.id);
+    drag.changed = true;
+    render();
+  });
+  const endDrag = () => {
+    if (!drag) return;
+    drag.el.classList.remove('dragging'); row.classList.remove('sorting');
+    if (drag.changed) { wire(); presetSeg.set(null, true); }
+    drag = null;
+  };
+  addEventListener('pointerup', endDrag);
+  addEventListener('pointercancel', endDrag);
 
   const PRESETS = [
     { id: 'dry', label: 'All off', on: {} },
@@ -123,8 +168,8 @@
 
   const tr = SD.transport({ label: 'Pedalboard', sources: ['arp', 'lick', 'riff', 'funk', 'held', 'drums'], value: 'arp', dest: () => input });
 
-  const scope = SD.canvas({ label: 'Output waveform', height: 120 });
-  const spec = SD.canvas({ label: 'Output spectrum', height: 120 });
+  const scope = SD.canvas({ label: 'Output waveform', height: 140 });
+  const spec = SD.canvas({ label: 'Output spectrum', height: 140 });
   const tbuf = new Float32Array(analyser.fftSize), fbuf = new Float32Array(analyser.frequencyBinCount);
   const ACC = SD.accentOf('board');
   const FR = { L: 44, R: 8, T: 6, B: 30 };
@@ -178,8 +223,10 @@
   root.append(
     h('div', { class: 'bench-head' }, tr.el),
     h('div', { class: 'board-presets' }, h('span', { class: 'lbl' }, 'Presets'), presetSeg.el),
-    h('div', { class: 'board-top' }, scope.el, spec.el),
-    h('div', { class: 'board' }, row, h('p', { class: 'board-hint' }, 'stomp to switch on · ◀ ▶ to reorder · drag knobs to tweak')),
+    h('div', { class: 'board-main' },
+      h('div', { class: 'board' }, row, h('p', { class: 'board-hint' }, 'stomp to switch on · drag a pedal (or use ◀ ▶) to reorder · turn knobs to tweak')),
+      h('div', { class: 'board-top' }, scope.el, spec.el)),
   );
   render(); wire();
+  SD.pageCtl.board = { play: tr.toggle };
 })();

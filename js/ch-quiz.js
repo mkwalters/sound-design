@@ -76,11 +76,12 @@
     fx.setOn(true);
     const fb = h('div', { class: 'quiz-feedback', role: 'status' });
     const optBtns = opts.map((o) => h('button', { type: 'button', class: 'quiz-opt', style: { '--c': o.color } }, h('span', { class: 'sw' }), o.label));
+    const bMystery = playBtn('Play mystery', ownerM, 'sparkle', () => fx.inputNode, q.src);
+    const bDry = playBtn('Hear it dry', ownerD, 'dry', () => dryIn, q.src);
+    SD.pageCtl.quiz = { play: () => bMystery.click(), bypass: () => bDry.click() };
     const card = h('div', { class: 'quiz-card' },
       h('p', { class: 'quiz-q' }, 'Which pedal is this?'),
-      h('div', { class: 'quiz-play' },
-        playBtn('Play mystery', ownerM, 'sparkle', () => fx.inputNode, q.src),
-        playBtn('Hear it dry', ownerD, 'dry', () => dryIn, q.src)),
+      h('div', { class: 'quiz-play' }, bMystery, bDry),
       h('div', { class: 'quiz-opts' }, optBtns),
       fb);
     optBtns.forEach((b, i) => b.addEventListener('click', () => {
@@ -93,7 +94,7 @@
       const nextBtn = h('button', { type: 'button', class: 'btn quiz-next' }, 'Next sound →');
       nextBtn.addEventListener('click', () => { SD.player.stop(); next(); });
       fb.innerHTML = '';
-      fb.append(h('b', null, ok ? 'Yes! ' : `It was ${q.label.toLowerCase()}. `), q.why, h('div', null, nextBtn));
+      fb.append(SD.glyph(q.id, q.color), h('b', null, ok ? 'Yes! ' : `It was ${q.label.toLowerCase()}. `), q.why, h('div', null, nextBtn));
       fb.classList.add('show');
       renderStats();
       nextBtn.focus({ preventScroll: true });

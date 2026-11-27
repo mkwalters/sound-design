@@ -6,14 +6,38 @@
   fx.outputNode.connect(SD.master);
 
   const mode = SD.segmented({ label: 'Mode', options: [{ value: 'tremolo', label: 'Tremolo · volume', tip: 'The LFO turns the volume knob.' }, { value: 'vibrato', label: 'Vibrato · pitch', tip: 'The LFO bends the pitch up and down.' }],
-    value: 'tremolo', onChange: (v) => fx.set('mode', v) });
+    value: 'tremolo', part: 'target', onChange: (v) => fx.set('mode', v) });
   const shape = SD.segmented({ small: true, label: 'LFO shape', options: [{ value: 'sine', label: '∿ sine', tip: 'Smooth, gentle swell.' }, { value: 'triangle', label: '⋀ tri', tip: 'Even, steady ramps.' }, { value: 'square', label: '⊓ square', tip: 'On/off chop: a stutter.' }],
-    value: 'sine', onChange: (v) => fx.set('shape', v) });
-  const kRate = SD.knob({ label: 'Rate', tip: 'Speed of the wobble, in wobbles per second.', min: 0.5, max: 12, value: 5, scale: 'log', format: (v) => v.toFixed(1) + ' Hz', onInput: (v) => fx.set('rate', v) });
-  const kDepth = SD.knob({ label: 'Depth', tip: 'How far it wobbles. 100% = full on/off chop.', min: 0, max: 1, value: 0.7, format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('depth', v) });
+    value: 'sine', part: 'lfo', onChange: (v) => fx.set('shape', v) });
+  const kRate = SD.knob({ label: 'Rate', tip: 'Speed of the wobble, in wobbles per second.', min: 0.5, max: 12, value: 5, scale: 'log', part: 'lfo', format: (v) => v.toFixed(1) + ' Hz', onInput: (v) => fx.set('rate', v) });
+  const kDepth = SD.knob({ label: 'Depth', tip: 'How far it wobbles. 100% = full on/off chop.', min: 0, max: 1, value: 0.7, part: 'amount', format: (v) => Math.round(v * 100) + '%', onInput: (v) => fx.set('depth', v) });
+
+  const PRESETS = {
+    surf: { mode: 'tremolo', rate: 6.5, depth: 0.6, shape: 'sine' },
+    throb: { mode: 'tremolo', rate: 2.2, depth: 0.85, shape: 'triangle' },
+    chop: { mode: 'tremolo', rate: 9, depth: 1, shape: 'square' },
+    seasick: { mode: 'vibrato', rate: 4.5, depth: 0.65, shape: 'sine' },
+  };
+  const presets = SD.presetBar({ options: [
+    { value: 'surf', label: 'Surf', tip: 'The quick, smooth shimmer of a 60s amp.' },
+    { value: 'throb', label: 'Slow throb', tip: 'Deep, lazy swells.' },
+    { value: 'chop', label: 'Helicopter', tip: 'Square LFO at full depth: the sound switches on and off.' },
+    { value: 'seasick', label: 'Seasick', tip: 'Vibrato: the pitch wobbles instead of the volume.' },
+  ], apply: (v) => { const s = PRESETS[v]; mode.set(s.mode); shape.set(s.shape); kRate.set(s.rate); kDepth.set(s.depth); } });
 
   const pedal = SD.pedal({ name: 'Wobble Lamp', sub: 'tremolo · vibrato', fx, top: mode.el, knobs: [kRate, kDepth],
     middle: h('div', { class: 'ctl-group' }, h('span', { class: 'ctl-label' }, 'lfo shape'), shape.el) });
+
+  const flow = SD.flow({ height: 100, on: () => pedal.on, draw(d) {
+    const y = 26, y2 = 78, p = fx.params, trem = p.mode === 'tremolo';
+    d.io(12, y, 'in'); d.io(288, y, 'out');
+    d.wire([[16, y], [104, y]]);
+    d.box(150, y, 88, trem ? 'volume knob' : 'tiny delay', { part: 'target' });
+    d.wire([[194, y], [283, y]]);
+    d.box(150, y2, 88, `LFO · ${p.rate.toFixed(1)} Hz`, { part: 'lfo', ctl: true });
+    d.wire([[150, y2 - 12], [150, y + 13]], { ctl: true, part: 'amount' });
+    d.note(158, 56, trem ? `turns it ±${Math.round(p.depth * 50)}%` : 'stretches it = pitch bend', { anchor: 'start', ctl: true });
+  } });
 
   const lfoC = SD.canvas({ label: 'The LFO', hint: 'a slow wave that turns a knob for you', height: 110 });
   const sig = SD.canvas({ label: 'What you hear', hint: 'same 2 seconds, lined up', height: 170 });
@@ -94,5 +118,5 @@
   };
   SD.onFrame(() => { lfoC.draw(); sig.draw(); }, document.getElementById('bench-trem'));
 
-  SD.bench('trem', { label: 'Wobble Lamp tremolo', sources: ['held', 'arp', 'note', 'sine'], source: 'held', dest: () => fx.inputNode, pedal, graphs: [lfoC, sig] });
+  SD.bench('trem', { label: 'Wobble Lamp tremolo', sources: ['held', 'arp', 'note', 'sine'], source: 'held', dest: () => fx.inputNode, pedal, flow, flowIn: 'graphs', presets, graphs: [lfoC, sig] });
 })();

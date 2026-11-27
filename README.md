@@ -6,6 +6,16 @@ tremolo/vibrato, chorus/flanger, phaser, delay and reverb, ending with a reorder
 pedalboard, endless "name that pedal" ear training (with per-pedal weak-spot stats) and a cheat sheet. Hover any knob for a
 one-line explanation.
 
+Each effect page also has:
+
+- a **signal-path diagram** (what's inside the box). Hover a knob and its block lights up, and the
+  other way round; it shows live values, animates while sound plays and greys out on bypass.
+- **presets** for quick listening, and the footswitch for A/B.
+- keyboard shortcuts: **Space** play/stop, **B** bypass, **←/→** pages, **Esc** stop.
+
+The Wave Lab's *Harmonics* knob builds a shape out of sine waves one at a time, and the pedalboard
+can be reordered by dragging pedals (or with the ◀ ▶ buttons).
+
 Demo audio comes from a small sampler built on real electric-guitar samples
 (FreePats "Electric Guitar FSBS Jazz", **CC0**, so commercial use is fine; see
 `assets/guitar/LICENSE.txt`). Each effect page defaults to a phrase written to show that
@@ -23,8 +33,8 @@ No build step, but it must be served (the guitar samples are fetched over HTTP):
 ## Layout
 
 - `js/audio.js` – AudioContext, master bus + limiter, guitar sampler + phrase library, synth sources, global player
-- `assets/guitar/` – 35 trimmed CC0 guitar samples (9.5 MB)
+- `assets/guitar/` – 35 trimmed CC0 guitar samples, as FLAC (2.7 MB, what the page loads) plus the bit-identical WAV originals (9.5 MB, fallback only)
 - `js/effects.js` – effect factories (each with a bypass footswitch wrapper)
-- `js/ui.js` – knobs, pedals, segmented controls, canvases, transport, frame loop
+- `js/ui.js` – knobs, pedals, segmented controls, canvases, transport, frame loop, icons/glyphs, signal-path diagrams (`SD.flow`), preset bars
 - `js/ch-*.js` – one file per chapter (controls + visualizations)
-- `js/main.js` – pager (hash routing), progress bar, bottom dock
+- `js/main.js` – pager (hash routing), progress bar, bottom dock, keyboard shortcuts

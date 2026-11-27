@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stompbox School</title>
 <meta name="description" content="A hands-on, 15-minute lesson on guitar effects.">
+<meta name="theme-color" content="#f2ece0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='2' width='20' height='28' rx='5' fill='%23a95a4f'/%3E%3Ccircle cx='12' cy='9' r='2.6' fill='%23f2ece0'/%3E%3Ccircle cx='20' cy='9' r='2.6' fill='%23f2ece0'/%3E%3Crect x='10' y='14' width='12' height='4' rx='1.5' fill='%23f2ece0'/%3E%3Ccircle cx='16' cy='24' r='3.2' fill='%23d9d4cc' stroke='%232d2622' stroke-width='1'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Fraunces:opsz,wght,SOFT@9..144,500..800,50..100&display=swap" rel="stylesheet">
@@ -25,8 +27,9 @@
     <div class="mini-board" id="mini-board" aria-label="Jump to a pedal"></div>
     <div class="hero-actions">
       <a class="big-btn" href="#sound">Start the lesson →</a>
-      <span class="hero-note">🎧 Headphones recommended</span>
+      <span class="hero-note" data-ico="headphones">Headphones recommended</span>
     </div>
+    <p class="keys" aria-label="Keyboard shortcuts"><kbd>space</kbd> play <kbd>B</kbd> bypass <kbd>←</kbd><kbd>→</kbd> pages</p>
   </div>
 </section>
 
@@ -43,7 +46,7 @@
     <li><b>Shape</b> → tone</li>
   </ul>
   <div class="bench" id="bench-sound"></div>
-  <p class="try"><b>Try</b> Switch <i>Sine</i> → <i>Square</i>. It's the same note with a buzzier tone, because square waves carry extra <em>harmonics</em>.</p>
+  <p class="try"><b>Try</b> Pick <i>Square</i>, then turn <i>Harmonics</i> down to 1. The buzz melts into a pure sine: the shape was a stack of sine waves all along.</p>
 </section>
 
 <!-- ============ DRIVE ============ -->
@@ -181,7 +184,7 @@
     <div><p class="family">Putting it together</p><h2>Build a pedalboard</h2>
     <p class="hook">Chain them all, and remember that order matters.</p></div>
   </header>
-  <p class="order-line"><span style="--c:var(--c-filter)">wah</span> → <span style="--c:var(--c-comp)">comp</span> → <span style="--c:var(--c-drive)">drive</span> → <span style="--c:var(--c-chorus)">modulation</span> → <span style="--c:var(--c-delay)">delay</span> → <span style="--c:var(--c-reverb)">reverb</span></p>
+  <p class="order-line" id="order-line" aria-live="polite"></p>
   <div class="bench bench-board" id="bench-board"></div>
   <p class="try"><b>Try</b> Load <i>Backwards!</i>: reverb runs <em>into</em> distortion, and it all turns to mush.</p>
 </section>
@@ -204,16 +207,17 @@
     <p class="hook">Everything you learned, on one page.</p></div>
   </header>
   <div class="cheat">
-    <a class="cheat-card" href="#drive" style="--c:var(--c-drive)"><h4>Drive · Fuzz</h4><p>Clips the wave → grit</p><small>Drive · Tone · Level</small></a>
-    <a class="cheat-card" href="#comp" style="--c:var(--c-comp)"><h4>Compressor</h4><p>Evens out loud &amp; quiet</p><small>Threshold · Ratio · Attack</small></a>
-    <a class="cheat-card" href="#filter" style="--c:var(--c-filter)"><h4>Wah · EQ</h4><p>Boosts or cuts frequencies</p><small>Frequency · Resonance</small></a>
-    <a class="cheat-card" href="#trem" style="--c:var(--c-trem)"><h4>Tremolo</h4><p>LFO wobbles the volume</p><small>Rate · Depth · Shape</small></a>
-    <a class="cheat-card" href="#chorus" style="--c:var(--c-chorus)"><h4>Chorus · Flanger</h4><p>Wobbly delayed copy</p><small>Rate · Depth · Feedback</small></a>
-    <a class="cheat-card" href="#phaser" style="--c:var(--c-phaser)"><h4>Phaser</h4><p>A few sweeping notches</p><small>Rate · Depth · Stages</small></a>
-    <a class="cheat-card" href="#delay" style="--c:var(--c-delay)"><h4>Delay</h4><p>Distinct repeats</p><small>Time · Feedback · Mix</small></a>
-    <a class="cheat-card" href="#reverb" style="--c:var(--c-reverb)"><h4>Reverb</h4><p>The sound of a space</p><small>Decay · Pre‑delay · Mix</small></a>
+    <a class="cheat-card" href="#drive" data-glyph="drive" style="--c:var(--c-drive)"><h4>Drive · Fuzz</h4><p>Clips the wave → grit</p><small>Drive · Tone · Level</small></a>
+    <a class="cheat-card" href="#comp" data-glyph="comp" style="--c:var(--c-comp)"><h4>Compressor</h4><p>Evens out loud &amp; quiet</p><small>Threshold · Ratio · Attack</small></a>
+    <a class="cheat-card" href="#filter" data-glyph="filter" style="--c:var(--c-filter)"><h4>Wah · EQ</h4><p>Boosts or cuts frequencies</p><small>Frequency · Resonance</small></a>
+    <a class="cheat-card" href="#trem" data-glyph="trem" style="--c:var(--c-trem)"><h4>Tremolo</h4><p>LFO wobbles the volume</p><small>Rate · Depth · Shape</small></a>
+    <a class="cheat-card" href="#chorus" data-glyph="chorus" style="--c:var(--c-chorus)"><h4>Chorus · Flanger</h4><p>Wobbly delayed copy</p><small>Rate · Depth · Feedback</small></a>
+    <a class="cheat-card" href="#phaser" data-glyph="phaser" style="--c:var(--c-phaser)"><h4>Phaser</h4><p>A few sweeping notches</p><small>Rate · Depth · Stages</small></a>
+    <a class="cheat-card" href="#delay" data-glyph="delay" style="--c:var(--c-delay)"><h4>Delay</h4><p>Distinct repeats</p><small>Time · Feedback · Mix</small></a>
+    <a class="cheat-card" href="#reverb" data-glyph="reverb" style="--c:var(--c-reverb)"><h4>Reverb</h4><p>The sound of a space</p><small>Decay · Pre‑delay · Mix</small></a>
   </div>
-  <p class="sign">Class dismissed. 🎸</p>
+  <p class="cheat-order"><span class="lbl">Classic order</span> <span style="--c:var(--c-filter)">wah</span> → <span style="--c:var(--c-comp)">comp</span> → <span style="--c:var(--c-drive)">drive</span> → <span style="--c:var(--c-chorus)">modulation</span> → <span style="--c:var(--c-delay)">delay</span> → <span style="--c:var(--c-reverb)">reverb</span></p>
+  <p class="sign">Class dismissed.</p>
   <p class="credits">Guitar samples: <a href="https://freepats.zenvoid.org/ElectricGuitar/clean-electric-guitar.html">FreePats Electric Guitar FSBS Jazz</a> (CC0).</p>
 </section>
 
@@ -225,8 +229,8 @@
     <span class="dock-dot" aria-hidden="true"></span>
     <span class="dock-text" id="dock-text">Nothing playing</span>
     <button type="button" class="dock-stop" id="dock-stop" title="Stop sound (Esc)">■</button>
-    <label class="dock-vol" data-tip="Master volume"><span aria-hidden="true">🔊</span><input type="range" id="dock-vol" min="0" max="1" step="0.01" value="0.7" aria-label="Master volume"></label>
-    <label class="dock-file" data-tip="Load your own audio file to use as a source"><input type="file" id="dock-file" accept="audio/*" hidden>＋ audio</label>
+    <label class="dock-vol" data-tip="Master volume" data-ico="speaker"><input type="range" id="dock-vol" min="0" max="1" step="0.01" value="0.7" aria-label="Master volume"></label>
+    <label class="dock-file" data-tip="Load your own audio file to use as a source"><input type="file" id="dock-file" accept="audio/*" hidden>+ audio</label>
   </div>
   <button type="button" class="pager-next" id="pg-next">Next →</button>
 </nav>

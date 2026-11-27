@@ -91,7 +91,9 @@
       if (k === 'tone') smooth(tone.frequency, 500 * Math.pow(12000 / 500, p.tone));
       if (k === 'level') {
         const comp = 1 / (1 + p.drive * (p.mode === 'fuzz' ? 2 : p.mode === 'distortion' ? 1.6 : 1.1));
-        smooth(level.gain, p.level * 0.4 * comp);
+        // at low Drive the shaper barely boosts, so make up the difference: on vs. bypass stays a fair comparison
+        const lift = p.mode === 'overdrive' ? 1 + 2.6 * Math.pow(1 - p.drive, 3) : 1 + (p.mode === 'distortion' ? 2.2 : 0.7) * Math.pow(1 - p.drive, 8);
+        smooth(level.gain, p.level * 0.4 * comp * lift);
       }
     };
     return finish(fx, ['mode', 'tone']);
